@@ -7,6 +7,7 @@ pub struct CPU {
     flags: Flags,
     pc: u16,
     sp: u16,
+    mem: Vec<u8>
 }
 
 impl CPU {
@@ -16,7 +17,19 @@ impl CPU {
             flags: Flags::new(),
             pc: 0,
             sp: 0,
+            mem: vec![0; 0xFFFF]
         }
+    }
+
+    pub fn execute(&mut self) {
+        let opcode = self.mem[usize::from(self.pc)];
+        match opcode {
+            0x3f => self.flags.carry = !self.flags.carry,                   // CMC
+            0x37 => self.flags.carry = true,                                // STC
+            _ => {}
+        }
+
+        self.pc +=1;
     }
 }
 
@@ -41,9 +54,21 @@ impl Flags {
 }
 
 #[cfg(test)]
-mod tests {
+mod instructions {
+    use super::*;
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn complement_carry() {
+        let mut c = CPU::new();
+        c.mem[0] = 0x3f;
+        c.execute();
+        assert_eq!(true, c.flags.carry);
+    }
+
+    #[test]
+    fn set_carry() {
+        let mut c = CPU::new();
+        c.mem[0] = 0x37;
+        c.execute();
+        assert_eq!(true, c.flags.carry);
     }
 }
