@@ -1,6 +1,7 @@
 mod register;
 mod flags;
 mod memory;
+mod bit;
 
 use crate::register::Registers;
 use crate::memory::AddressBus;
@@ -26,15 +27,47 @@ impl CPU {
     }
 
     // Increment functions
-    pub fn inr(&self, n: u8) -> u8 {
-        n.wrapping_add(1)
-        // TODO : update of flags
+    pub fn inr(&mut self, n: u8) -> u8 {
+        let r = n.wrapping_add(1);
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        r
     }
 
     // Decrement functions
-    pub fn dcr(&self, n: u8) -> u8 {
-        n.wrapping_sub(1)
-        // TODO : update of flags
+    pub fn dcr(&mut self, n: u8) -> u8 {
+        let r = n.wrapping_sub(1);
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        r
+    }
+
+    // ADD
+    pub fn add(&mut self, n: u8) {
+        let a = self.registers.a;
+        let r = a.wrapping_add(n);
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        self.flags.c = u16::from(a) + u16::from(n) > 0xff;
+        self.registers.a = r;
+    }
+
+    // ADD with carry
+    pub fn adc(&mut self, n: u8) {
+        let a = self.registers.a;
+        let r = a.wrapping_add(n);
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        self.flags.c = u16::from(a) + u16::from(n) > 0xff;
+        self.registers.a = r;
     }
 
     // fetches and executes instruction from (pc)
@@ -42,8 +75,8 @@ impl CPU {
         let opcode = self.bus.read_byte(self.pc);
         match opcode {
             /* Carry bit instructions */
-            0x3f => self.flags.carry = !self.flags.carry,                   // CMC
-            0x37 => self.flags.carry = true,                                // STC
+            0x3f => self.flags.c = !self.flags.c,                   // CMC
+            0x37 => self.flags.c = true,                                // STC
 
             /* Single register instructions */
             // Increment Register or Memory
@@ -56,7 +89,8 @@ impl CPU {
             0x3C => self.registers.a = self.inr(self.registers.a),          // INR A
             0x34 => {                                                       // INR (HL)
                 let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.inr(self.bus.read_byte(addr)))
+                let r = self.inr(self.bus.read_byte(addr));
+                self.bus.write_byte(addr, r);
             },
 
             // Decrement Register or Memory
@@ -69,7 +103,8 @@ impl CPU {
             0x3D => self.registers.a = self.dcr(self.registers.a),          // DCR A
             0x35 => {                                                       // DCR (HL)
                 let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.dcr(self.bus.read_byte(addr)))
+                let r = self.dcr(self.bus.read_byte(addr));
+                self.bus.write_byte(addr, r);
             },
 
             // Complement Accumulator
@@ -231,7 +266,7 @@ mod instructions {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3f);
         c.execute();
-        assert_eq!(true, c.flags.carry);
+        assert_eq!(true, c.flags.c);
     }
 
     #[test]
@@ -239,7 +274,7 @@ mod instructions {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x37);
         c.execute();
-        assert_eq!(true, c.flags.carry);
+        assert_eq!(true, c.flags.c);
     }
 
     #[test]
