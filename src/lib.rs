@@ -60,14 +60,17 @@ impl CPU {
 
     // ADD with carry
     pub fn adc(&mut self, n: u8) {
+        let c: u8 = match self.flags.c {
+            false => 0,
+            true => 1,
+        };
         let a = self.registers.a;
-        let r = a.wrapping_add(n);
+        let r = a.wrapping_add(n).wrapping_add(c);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
-        self.flags.c = u16::from(a) + u16::from(n) > 0xff;
-        self.registers.a = r;
+        self.flags.c = u16::from(a) + u16::from(n) + u16::from(c) > 0xff;
     }
 
     // fetches and executes instruction from (pc)
@@ -250,6 +253,31 @@ impl CPU {
             },
 
             /* Register or Memory to Accumulator instructions*/
+            0x80 => self.add(self.registers.b),                             // ADD B
+            0x81 => self.add(self.registers.c),                             // ADD C
+            0x82 => self.add(self.registers.d),                             // ADD D
+            0x83 => self.add(self.registers.e),                             // ADD E
+            0x84 => self.add(self.registers.h),                             // ADD H
+            0x85 => self.add(self.registers.l),                             // ADD L
+            0x86 => {                                                       // ADD (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.add(n)
+            },
+            0x87 => self.add(self.registers.a),                             // ADD A
+
+            0x88 => self.adc(self.registers.b),                             // ADC B
+            0x89 => self.adc(self.registers.c),                             // ADC C
+            0x8A => self.adc(self.registers.d),                             // ADC D
+            0x8B => self.adc(self.registers.e),                             // ADC E
+            0x8C => self.adc(self.registers.h),                             // ADC H
+            0x8D => self.adc(self.registers.l),                             // ADC L
+            0x8E => {                                                       // ADC (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.adc(n)
+            },
+            0x8F => self.adc(self.registers.a),                             // ADC A
 
             _ => {}
         }
