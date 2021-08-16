@@ -41,11 +41,12 @@ impl CPU {
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
         match opcode {
-            // Carry bit instructions
+            /* Carry bit instructions */
             0x3f => self.flags.carry = !self.flags.carry,                   // CMC
             0x37 => self.flags.carry = true,                                // STC
 
-            // Increment instructions
+            /* Single register instructions */
+            // Increment Register or Memory
             0x04 => self.registers.b = self.inr(self.registers.b),          // INR B
             0x0C => self.registers.c = self.inr(self.registers.c),          // INR C
             0x14 => self.registers.d = self.inr(self.registers.d),          // INR D
@@ -58,7 +59,7 @@ impl CPU {
                 self.bus.write_byte(addr, self.inr(self.bus.read_byte(addr)))
             },
 
-            // Decrement instructions
+            // Decrement Register or Memory
             0x05 => self.registers.b = self.dcr(self.registers.b),          // DCR B
             0x0D => self.registers.c = self.dcr(self.registers.c),          // DCR C
             0x15 => self.registers.d = self.dcr(self.registers.d),          // DCR D
@@ -71,11 +72,11 @@ impl CPU {
                 self.bus.write_byte(addr, self.dcr(self.bus.read_byte(addr)))
             },
 
-            // Complement accumulator
+            // Complement Accumulator
             0x2F => self.registers.a = !self.registers.a,                   // CMA
 
             // Decimal adjust accumulator
-            // DAA
+            // TODO : DAA
 
             // No Operation
             0x00 => {},                                                     // NOP
@@ -195,6 +196,25 @@ impl CPU {
                 self.registers.a = self.bus.read_byte(addr)
             },
             0x7F => {},                                                     // MOV A,A
+
+            0x02 => {
+                let addr = self.registers.get_bc();                         // STAX B
+                self.bus.write_byte(addr, self.registers.a)
+            }
+            0x12 => {                                                       // STAX D
+                let addr = self.registers.get_de();
+                self.bus.write_byte(addr, self.registers.a)
+            },
+            0x0A => {
+                let addr = self.registers.get_bc();                         // LDAX B
+                self.registers.a = self.bus.read_byte(addr)
+            },
+            0x1A => {                                                       // LDAX D
+                let addr = self.registers.get_de();
+                self.registers.a = self.bus.read_byte(addr)
+            },
+
+            /* Register or Memory to Accumulator instructions*/
 
             _ => {}
         }
