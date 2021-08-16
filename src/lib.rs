@@ -141,6 +141,61 @@ impl CPU {
             },
             0x67 => self.registers.h = self.registers.a,                    // MOV H,A
 
+            0x68 => self.registers.l = self.registers.b,                    // MOV L,B                                                     // MOV B,B
+            0x69 => self.registers.l = self.registers.c,                    // MOV L,C
+            0x6A => self.registers.l = self.registers.d,                    // MOV L,D
+            0x6B => self.registers.l = self.registers.e,                    // MOV L,E
+            0x6C => self.registers.l = self.registers.h,                    // MOV L,H
+            0x6D => {},                                                     // MOV L,L
+            0x6E => {                                                       // MOV L,(HL)
+                let addr = self.registers.get_hl();
+                self.registers.l = self.bus.read_byte(addr)
+            },
+            0x6F => self.registers.l = self.registers.a,                    // MOV L,A
+
+            0x70 => {                                                       // MOV (HL), B
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.b)
+            },
+            0x71 => {                                                       // MOV (HL), C
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.c)
+            },
+            0x72 => {                                                       // MOV (HL), D
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.d)
+            },
+            0x73 => {                                                       // MOV (HL), E
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.e)
+            },
+            0x74 => {                                                       // MOV (HL), H
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.h)
+            },
+            0x75 => {                                                       // MOV (HL), L
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.l)
+            },
+
+            0x76 => {/* TODO : HLT */},
+            0x77 => {                                                       // MOV (HL), A
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, self.registers.a)
+            },
+
+            0x78 => self.registers.a = self.registers.b,                    // MOV A,B                                                     // MOV B,B
+            0x79 => self.registers.a = self.registers.c,                    // MOV A,C
+            0x7A => self.registers.a = self.registers.b,                    // MOV A,D
+            0x7B => self.registers.a = self.registers.e,                    // MOV A,E
+            0x7C => self.registers.a = self.registers.h,                    // MOV A,H
+            0x7D => self.registers.a = self.registers.l,                    // MOV A,L
+            0x7E => {                                                       // MOV A,(HL)
+                let addr = self.registers.get_hl();
+                self.registers.a = self.bus.read_byte(addr)
+            },
+            0x7F => {},                                                     // MOV A,A
+
             _ => {}
         }
 
