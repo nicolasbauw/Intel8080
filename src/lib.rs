@@ -134,6 +134,13 @@ impl CPU {
         self.registers.a = r;
     }
 
+    // CMP Compare register or memory with accumulator
+    fn cmp(&mut self, n: u8) {
+        let r = self.registers.a;
+        self.sub(n);
+        self.registers.a = r;
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -405,6 +412,19 @@ impl CPU {
             },
             0xB7 => self.ora(self.registers.a),                             // ORA A
 
+            0xB8 => self.cmp(self.registers.b),                             // CMP B
+            0xB9 => self.cmp(self.registers.c),                             // CMP C
+            0xBA => self.cmp(self.registers.d),                             // CMP D
+            0xBB => self.cmp(self.registers.e),                             // CMP E
+            0xBC => self.cmp(self.registers.h),                             // CMP H
+            0xBD => self.cmp(self.registers.l),                             // CMP L
+            0xBE => {                                                       // CMP (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.cmp(n)
+            },
+            0xBF => self.cmp(self.registers.a),                             // CMP A
+
             _ => {}
         }
 
@@ -537,5 +557,18 @@ mod instructions {
         c.registers.c = 0x0F;
         c.execute();
         assert_eq!(0x3F, c.registers.a);
+    }
+
+    #[test]
+    fn cmp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xBB);
+        c.registers.a = 0x0A;
+        c.registers.e = 0x05;
+        c.execute();
+        assert_eq!(0x0A, c.registers.a);
+        assert_eq!(0x05, c.registers.e);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.c, false);
     }
 }
