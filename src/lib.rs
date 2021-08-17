@@ -112,6 +112,28 @@ impl CPU {
         self.registers.a = r;
     }
 
+    // XRA Logical Exclusive-OR register or memory with accumulator
+    fn xra(&mut self, n: u8) {
+        let a = self.registers.a;
+        let r = a ^ n;
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.c = false;
+        self.flags.a = (a & 0x0f) + (n & 0x0f) > 0x0f;
+        self.registers.a = r;
+    }
+
+    // ORA Logical AND register or memory with accumulator
+    fn ora(&mut self, n: u8) {
+        let r = self.registers.a | n;
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.c = false;
+        self.registers.a = r;
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -357,6 +379,32 @@ impl CPU {
             },
             0xA7 => self.ana(self.registers.a),                             // ANA A
 
+            0xA8 => self.xra(self.registers.b),                             // XRA B
+            0xA9 => self.xra(self.registers.c),                             // XRA C
+            0xAA => self.xra(self.registers.d),                             // XRA D
+            0xAB => self.xra(self.registers.e),                             // XRA E
+            0xAC => self.xra(self.registers.h),                             // XRA H
+            0xAD => self.xra(self.registers.l),                             // XRA L
+            0xAE => {                                                       // ANA (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.xra(n)
+            },
+            0xAF => self.xra(self.registers.b),                             // XRA A
+
+            0xB0 => self.ora(self.registers.b),                             // ORA B
+            0xB1 => self.ora(self.registers.c),                             // ORA C
+            0xB2 => self.ora(self.registers.d),                             // ORA D
+            0xB3 => self.ora(self.registers.e),                             // ORA E
+            0xB4 => self.ora(self.registers.h),                             // ORA H
+            0xB5 => self.ora(self.registers.l),                             // ORA L
+            0xB6 => {                                                       // ORA (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.ora(n)
+            },
+            0xB7 => self.ora(self.registers.a),                             // ORA A
+
             _ => {}
         }
 
@@ -479,5 +527,15 @@ mod instructions {
         c.registers.c = 0x0F;
         c.execute();
         assert_eq!(0x0C, c.registers.a);
+    }
+
+    #[test]
+    fn ora() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xB1);
+        c.registers.a = 0x33;
+        c.registers.c = 0x0F;
+        c.execute();
+        assert_eq!(0x3F, c.registers.a);
     }
 }
