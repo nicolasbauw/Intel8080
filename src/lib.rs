@@ -27,7 +27,7 @@ impl CPU {
     }
 
     // Increment functions
-    pub fn inr(&mut self, n: u8) -> u8 {
+    fn inr(&mut self, n: u8) -> u8 {
         let r = n.wrapping_add(1);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
@@ -37,7 +37,7 @@ impl CPU {
     }
 
     // Decrement functions
-    pub fn dcr(&mut self, n: u8) -> u8 {
+    fn dcr(&mut self, n: u8) -> u8 {
         let r = n.wrapping_sub(1);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
@@ -47,7 +47,7 @@ impl CPU {
     }
 
     // ADD register or memory to Accumulator
-    pub fn add(&mut self, n: u8) {
+    fn add(&mut self, n: u8) {
         let a = self.registers.a;
         let r = a.wrapping_add(n);
         self.flags.z = r == 0x00;
@@ -59,7 +59,7 @@ impl CPU {
     }
 
     // ADD register or memory to Accumulator with carry
-    pub fn adc(&mut self, n: u8) {
+    fn adc(&mut self, n: u8) {
         let c: u8 = match self.flags.c {
             false => 0,
             true => 1,
@@ -75,7 +75,7 @@ impl CPU {
     }
 
     // SUB register or memory from Accumulator
-    pub fn sub(&mut self, n: u8) {
+    fn sub(&mut self, n: u8) {
         let a = self.registers.a;
         let r = a.wrapping_sub(n);
         self.flags.z = r == 0x00;
@@ -87,7 +87,7 @@ impl CPU {
     }
 
     // SUB register or memory from Accumulator with borrow
-    pub fn sbb(&mut self, n: u8) {
+    fn sbb(&mut self, n: u8) {
         let c: u8 = match self.flags.c {
             false => 0,
             true => 1,
@@ -99,6 +99,16 @@ impl CPU {
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (a as i8 & 0x0f) - (n as i8 & 0x0f) - (c as i8) >= 0x00;
         self.flags.c = u16::from(a) < u16::from(n) + u16::from(c);
+        self.registers.a = r;
+    }
+
+    // ANA Logical AND register or memory with accumulator
+    fn ana(&mut self, n: u8) {
+        let r = self.registers.a & n;
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.c = false;
         self.registers.a = r;
     }
 
@@ -334,6 +344,19 @@ impl CPU {
             },
             0x9F => self.sbb(self.registers.a),                             // SBB A
 
+            0xA0 => self.ana(self.registers.b),                             // ANA B
+            0xA1 => self.ana(self.registers.c),                             // ANA C
+            0xA2 => self.ana(self.registers.d),                             // ANA D
+            0xA3 => self.ana(self.registers.e),                             // ANA E
+            0xA4 => self.ana(self.registers.h),                             // ANA H
+            0xA5 => self.ana(self.registers.l),                             // ANA L
+            0xA6 => {                                                       // ANA (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.ana(n)
+            },
+            0xA7 => self.ana(self.registers.a),                             // ANA A
+
             _ => {}
         }
 
@@ -446,5 +469,15 @@ mod instructions {
         assert_eq!(c.flags.p, false);
         assert_eq!(c.flags.s, false);
         assert_eq!(c.flags.a, true);
+    }
+
+    #[test]
+    fn ana() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xA1);
+        c.registers.a = 0xFC;
+        c.registers.c = 0x0F;
+        c.execute();
+        assert_eq!(0x0C, c.registers.a);
     }
 }
