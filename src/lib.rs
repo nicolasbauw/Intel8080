@@ -81,7 +81,8 @@ impl CPU {
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        // TODO : carry and auxiliary carry
+        self.flags.a = (a as i8 & 0x0f) - (n as i8 & 0x0f) >= 0x00;
+        self.flags.c = u16::from(a) < u16::from(n);
         self.registers.a = r;
     }
 
@@ -96,7 +97,8 @@ impl CPU {
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        // TODO : carry and auxiliary carry
+        self.flags.a = (a as i8 & 0x0f) - (n as i8 & 0x0f) - (c as i8) >= 0x00;
+        self.flags.c = u16::from(a) < u16::from(n) + u16::from(c);
         self.registers.a = r;
     }
 
@@ -307,17 +309,30 @@ impl CPU {
             0x8F => self.adc(self.registers.a),                             // ADC A
 
             0x90 => self.sub(self.registers.b),                             // SUB B
-            0x91 => self.sub(self.registers.c),                             // SUB B
-            0x92 => self.sub(self.registers.d),                             // SUB B
-            0x93 => self.sub(self.registers.e),                             // SUB B
-            0x94 => self.sub(self.registers.h),                             // SUB B
-            0x95 => self.sub(self.registers.l),                             // SUB B
+            0x91 => self.sub(self.registers.c),                             // SUB C
+            0x92 => self.sub(self.registers.d),                             // SUB D
+            0x93 => self.sub(self.registers.e),                             // SUB E
+            0x94 => self.sub(self.registers.h),                             // SUB H
+            0x95 => self.sub(self.registers.l),                             // SUB L
             0x96 => {                                                       // SUB (HL)
                 let addr = self.registers.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.sub(n)
             },
             0x97 => self.sub(self.registers.a),                             // SUB A
+
+            0x98 => self.sbb(self.registers.b),                             // SBB B
+            0x99 => self.sbb(self.registers.c),                             // SBB C
+            0x9A => self.sbb(self.registers.d),                             // SBB D
+            0x9B => self.sbb(self.registers.e),                             // SBB E
+            0x9C => self.sbb(self.registers.h),                             // SBB H
+            0x9D => self.sbb(self.registers.l),                             // SBB L
+            0x9E => {                                                       // SBB (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.sbb(n)
+            },
+            0x9F => self.sbb(self.registers.a),                             // SBB A
 
             _ => {}
         }
@@ -401,5 +416,35 @@ mod instructions {
         assert_eq!(c.flags.p, false);
         assert_eq!(c.flags.s, false);
         assert_eq!(c.flags.a, false);
+    }
+
+    #[test]
+    fn sub() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x97);
+        c.registers.a = 0x3E;
+        c.execute();
+        assert_eq!(0x00, c.registers.a);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.a, true);
+    }
+
+    #[test]
+    fn sbb() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9D);
+        c.registers.a = 0x04;
+        c.flags.c = true;
+        c.registers.l = 0x02;
+        c.execute();
+        assert_eq!(0x01, c.registers.a);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.flags.p, false);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.a, true);
     }
 }
