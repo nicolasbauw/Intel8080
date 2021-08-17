@@ -416,7 +416,7 @@ impl CPU {
 mod instructions {
     use super::*;
     #[test]
-    fn complement_carry() {
+    fn cmc() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3f);
         c.execute();
@@ -424,7 +424,7 @@ mod instructions {
     }
 
     #[test]
-    fn set_carry() {
+    fn stc() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x37);
         c.execute();
@@ -432,7 +432,7 @@ mod instructions {
     }
 
     #[test]
-    fn inr_b() {
+    fn inr() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x04);
         c.execute();
@@ -441,7 +441,7 @@ mod instructions {
     }
 
     #[test]
-    fn dcr_b() {
+    fn dcr() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x05);
         c.execute();

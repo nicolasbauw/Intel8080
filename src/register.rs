@@ -53,7 +53,7 @@ impl Registers {
 mod tests {
     use super::*;
     #[test]
-    fn can_set_bc() {
+    fn bc_set() {
         let mut registers = Registers::new();
         registers.set_bc(0b1010_1111_1100_1100);
         assert_eq!(registers.b, 0b1010_1111u8);

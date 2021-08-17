@@ -22,7 +22,7 @@ impl AddressBus {
 mod tests {
     use super::*;
     #[test]
-    fn test_read_write_byte() {
+    fn rw_byte() {
         let mut b = AddressBus::new();
         b.write_byte(0x0000, 0xFF);
         assert_eq!(b.read_byte(0x0000), 0xFF);
