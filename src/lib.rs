@@ -46,19 +46,19 @@ impl CPU {
         r
     }
 
-    // ADD
+    // ADD register or memory to Accumulator
     pub fn add(&mut self, n: u8) {
         let a = self.registers.a;
         let r = a.wrapping_add(n);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        self.flags.a = (a & 0x0f) + (n & 0x0f) > 0x0f;
         self.flags.c = u16::from(a) + u16::from(n) > 0xff;
         self.registers.a = r;
     }
 
-    // ADD with carry
+    // ADD register or memory to Accumulator with carry
     pub fn adc(&mut self, n: u8) {
         let c: u8 = match self.flags.c {
             false => 0,
@@ -69,8 +69,35 @@ impl CPU {
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        self.flags.a = (a & 0x0f) + (n & 0x0f) + c > 0x0f;
         self.flags.c = u16::from(a) + u16::from(n) + u16::from(c) > 0xff;
+        self.registers.a = r;
+    }
+
+    // SUB register or memory from Accumulator
+    pub fn sub(&mut self, n: u8) {
+        let a = self.registers.a;
+        let r = a.wrapping_sub(n);
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        // TODO : carry and auxiliary carry
+        self.registers.a = r;
+    }
+
+    // SUB register or memory from Accumulator with borrow
+    pub fn sbb(&mut self, n: u8) {
+        let c: u8 = match self.flags.c {
+            false => 0,
+            true => 1,
+        };
+        let a = self.registers.a;
+        let r = a.wrapping_sub(n.wrapping_add(c));
+        self.flags.z = r == 0x00;
+        self.flags.s = bit::get(r, 7);
+        self.flags.p = r.count_ones() & 0x01 == 0x00;
+        // TODO : carry and auxiliary carry
+        self.registers.a = r;
     }
 
     // fetches and executes instruction from (pc)
@@ -279,6 +306,19 @@ impl CPU {
             },
             0x8F => self.adc(self.registers.a),                             // ADC A
 
+            0x90 => self.sub(self.registers.b),                             // SUB B
+            0x91 => self.sub(self.registers.c),                             // SUB B
+            0x92 => self.sub(self.registers.d),                             // SUB B
+            0x93 => self.sub(self.registers.e),                             // SUB B
+            0x94 => self.sub(self.registers.h),                             // SUB B
+            0x95 => self.sub(self.registers.l),                             // SUB B
+            0x96 => {                                                       // SUB (HL)
+                let addr = self.registers.get_hl();
+                let n = self.bus.read_byte(addr);
+                self.sub(n)
+            },
+            0x97 => self.sub(self.registers.a),                             // SUB A
+
             _ => {}
         }
 
@@ -331,5 +371,35 @@ mod instructions {
         c.execute();
         assert_eq!(0b00110011, c.registers.a);
         
+    }
+
+    #[test]
+    fn add() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x82);
+        c.registers.a = 0x6C;
+        c.registers.d = 0x2E;
+        c.execute();
+        assert_eq!(0x9A, c.registers.a);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.s, true);
+        assert_eq!(c.flags.a, true);
+    }
+
+    #[test]
+    fn adc() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x89);
+        c.registers.a = 0x42;
+        c.registers.c = 0x3D;
+        c.execute();
+        assert_eq!(0x7F, c.registers.a);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.flags.p, false);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.a, false);
     }
 }
