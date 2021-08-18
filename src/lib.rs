@@ -141,6 +141,18 @@ impl CPU {
         self.registers.a = r;
     }
 
+    // Rotate accumulator left
+    fn rlc(&mut self) {
+        self.flags.c = bit::get(self.registers.a, 7);
+        self.registers.a = (self.registers.a << 1) | u8::from(self.flags.c);
+    }
+
+    // Rotate accumulator right
+    fn rrc(&mut self) {
+        self.flags.c = bit::get(self.registers.a, 0);
+        self.registers.a = if self.flags.c {0x80 | (self.registers.a >> 1) } else { self.registers.a >> 1 };
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -425,6 +437,10 @@ impl CPU {
             },
             0xBF => self.cmp(self.registers.a),                             // CMP A
 
+            /* Rotate accumulator instructions */
+            0x07 => self.rlc(),                                             // RLC
+            0x0F => self.rrc(),                                             // RRC
+
             _ => {}
         }
 
@@ -570,5 +586,25 @@ mod instructions {
         assert_eq!(0x05, c.registers.e);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn rlc() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x07);
+        c.registers.a = 0xF2;
+        c.execute();
+        assert_eq!(c.flags.c, true);
+        assert_eq!(c.registers.a, 0xE5);
+    }
+
+    #[test]
+    fn rrc() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x0F);
+        c.registers.a = 0xF2;
+        c.execute();
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.registers.a, 0x79);
     }
 }
