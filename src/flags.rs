@@ -25,4 +25,12 @@ impl Flags {
         let c = if self.c { 1 } else { 0  };
         s | z | a | p | c | 2
     }
+
+    pub fn from_byte(&mut self, bflags: u8) {
+        self.s = (bflags & 0x80) != 0;
+        self.z = (bflags & 0x40) != 0;
+        self.a = (bflags & 0x10) != 0;
+        self.p = (bflags & 0x04) != 0;
+        self.c = (bflags & 0x01) != 0;
+    }
 }
