@@ -162,6 +162,16 @@ impl CPU {
             false => self.registers.a << 1
         }
     }
+    
+    // RAL Rotate accumulator right through carry
+    fn rar(&mut self) {
+        let c = self.flags.c;
+        self.flags.c = bit::get(self.registers.a, 0);
+        self.registers.a = match c {
+            true => (self.registers.a >> 1) | 0x80,
+            false => self.registers.a >> 1
+        }
+    }
 
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
@@ -451,6 +461,7 @@ impl CPU {
             0x07 => self.rlc(),                                             // RLC
             0x0F => self.rrc(),                                             // RRC
             0x17 => self.ral(),                                             // RAL
+            0x1F => self.rar(),                                             // RAR
 
             _ => {}
         }
@@ -627,5 +638,16 @@ mod instructions {
         c.execute();
         assert_eq!(c.flags.c, true);
         assert_eq!(c.registers.a, 0x6A);
+    }
+
+    #[test]
+    fn rar() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x1F);
+        c.registers.a = 0x6A;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.registers.a, 0xB5);
     }
 }
