@@ -463,6 +463,23 @@ impl CPU {
             0x17 => self.ral(),                                             // RAL
             0x1F => self.rar(),                                             // RAR
 
+            /* Register pair instructions */
+            0xC5 => {
+                self.bus.write_byte((self.sp) - 1, self.registers.b);
+                self.bus.write_byte((self.sp) - 2, self.registers.c);
+                self.sp = self.sp - 2;
+            },
+            0xD5 => {
+                self.bus.write_byte((self.sp) - 1, self.registers.d);
+                self.bus.write_byte((self.sp) - 2, self.registers.e);
+                self.sp = self.sp - 2;
+            },
+            0xE5 => {
+                self.bus.write_byte((self.sp) - 1, self.registers.h);
+                self.bus.write_byte((self.sp) - 2, self.registers.l);
+                self.sp = self.sp - 2;
+            },
+
             _ => {}
         }
 
@@ -649,5 +666,18 @@ mod instructions {
         c.execute();
         assert_eq!(c.flags.c, false);
         assert_eq!(c.registers.a, 0xB5);
+    }
+
+    #[test]
+    fn push() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xD5);
+        c.registers.d = 0x8F;
+        c.registers.e = 0x9D;
+        c.sp = 0x3A2C;
+        c.execute();
+        assert_eq!(c.sp, 0x3A2A);
+        assert_eq!(c.bus.read_byte(0x3A2B), 0x8F);
+        assert_eq!(c.bus.read_byte(0x3A2A), 0x9D);
     }
 }
