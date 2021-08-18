@@ -173,6 +173,14 @@ impl CPU {
         }
     }
 
+    // DAD Double add
+    fn dad(&mut self, n: u16) {
+        let h = self.registers.get_hl();
+        let r = h.wrapping_add(n);
+        self.registers.set_hl(r);
+        self.flags.c = u32::from(h) + u32::from(n) > 0xffff;
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -485,6 +493,36 @@ impl CPU {
                 self.sp = self.sp - 2;
             },
 
+            0xC1 => {                                                       // POP B
+                self.registers.b = self.bus.read_byte((self.sp)+1);
+                self.registers.c = self.bus.read_byte(self.sp);
+                self.sp += 2;
+            },
+
+            0xD1 => {                                                       // POP D
+                self.registers.d = self.bus.read_byte((self.sp)+1);
+                self.registers.e = self.bus.read_byte(self.sp);
+                self.sp += 2;
+            },
+
+            0xE1 => {                                                       // POP H
+                self.registers.h = self.bus.read_byte((self.sp)+1);
+                self.registers.l = self.bus.read_byte(self.sp);
+                self.sp += 2;
+            },
+
+            0xF1 => {                                                       // POP PSW
+                self.registers.a = self.bus.read_byte((self.sp)+1);
+                let bflags = self.bus.read_byte(self.sp);
+                self.flags.from_byte(bflags);
+                self.sp += 2;
+            },
+
+            0x09 => self.dad(self.registers.get_bc()),                      // DAD B
+            0x19 => self.dad(self.registers.get_de()),                      // DAD D
+            0x29 => self.dad(self.registers.get_hl()),                      // DAD H
+            0x39 => self.dad(self.sp),                                      // DAD SP
+
             _ => {}
         }
 
@@ -701,5 +739,46 @@ mod instructions {
         assert_eq!(c.sp, 0x5028);
         assert_eq!(c.bus.read_byte(0x5029), 0x1F);
         assert_eq!(c.bus.read_byte(0x5028), 0x47);
+    }
+
+    #[test]
+    fn pop() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xE1);
+        c.bus.write_byte(0x1239, 0x3D);
+        c.bus.write_byte(0x123A, 0x93);
+        c.sp = 0x1239;
+        c.execute();
+        assert_eq!(c.sp, 0x123B);
+        assert_eq!(c.registers.l, 0x3D);
+        assert_eq!(c.registers.h, 0x93);
+    }
+
+    #[test]
+    fn pop_psw() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xF1);
+        c.bus.write_byte(0x2C00, 0xC3);
+        c.bus.write_byte(0x2C01, 0xFF);
+        c.sp = 0x2C00;
+        c.execute();
+        assert_eq!(c.registers.a, 0xFF);
+        assert_eq!(c.flags.s, true);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.p, false);
+    }
+
+    #[test]
+    fn dad() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x09);
+        c.registers.set_bc(0x339F);
+        c.registers.set_hl(0xA17B);
+        c.execute();
+        assert_eq!(c.registers.h, 0xD5);
+        assert_eq!(c.registers.l, 0x1A);
+        assert_eq!(c.flags.c, false);
     }
 }
