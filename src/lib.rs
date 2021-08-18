@@ -153,6 +153,16 @@ impl CPU {
         self.registers.a = if self.flags.c {0x80 | (self.registers.a >> 1) } else { self.registers.a >> 1 };
     }
 
+    // RAL Rotate accumulator left through carry
+    fn ral(&mut self) {
+        let c = self.flags.c;
+        self.flags.c = bit::get(self.registers.a, 7);
+        self.registers.a = match c {
+            true => (self.registers.a << 1) | 0x01,
+            false => self.registers.a << 1
+        }
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -440,6 +450,7 @@ impl CPU {
             /* Rotate accumulator instructions */
             0x07 => self.rlc(),                                             // RLC
             0x0F => self.rrc(),                                             // RRC
+            0x17 => self.ral(),                                             // RAL
 
             _ => {}
         }
@@ -606,5 +617,15 @@ mod instructions {
         c.execute();
         assert_eq!(c.flags.c, false);
         assert_eq!(c.registers.a, 0x79);
+    }
+
+    #[test]
+    fn ral() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x17);
+        c.registers.a = 0xB5;
+        c.execute();
+        assert_eq!(c.flags.c, true);
+        assert_eq!(c.registers.a, 0x6A);
     }
 }
