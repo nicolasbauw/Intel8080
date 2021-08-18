@@ -16,4 +16,13 @@ impl Flags {
             c: false
         }
     }
+
+    pub fn as_byte(&self) -> u8 {
+        let s = if self.s { 1 << 7 } else { 0  };
+        let z = if self.z { 1 << 6 } else { 0  };
+        let a = if self.a { 1 << 4 } else { 0  };
+        let p = if self.p { 1 << 2 } else { 0  };
+        let c = if self.c { 1 } else { 0  };
+        s | z | a | p | c | 2
+    }
 }
