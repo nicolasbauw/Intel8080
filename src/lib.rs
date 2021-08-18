@@ -464,19 +464,24 @@ impl CPU {
             0x1F => self.rar(),                                             // RAR
 
             /* Register pair instructions */
-            0xC5 => {
+            0xC5 => {                                                       // PUSH B
                 self.bus.write_byte((self.sp) - 1, self.registers.b);
                 self.bus.write_byte((self.sp) - 2, self.registers.c);
                 self.sp = self.sp - 2;
             },
-            0xD5 => {
+            0xD5 => {                                                       // PUSH D
                 self.bus.write_byte((self.sp) - 1, self.registers.d);
                 self.bus.write_byte((self.sp) - 2, self.registers.e);
                 self.sp = self.sp - 2;
             },
-            0xE5 => {
+            0xE5 => {                                                       // PUSH H
                 self.bus.write_byte((self.sp) - 1, self.registers.h);
                 self.bus.write_byte((self.sp) - 2, self.registers.l);
+                self.sp = self.sp - 2;
+            },
+            0xF5 => {                                                       // PUSH PSW
+                self.bus.write_byte((self.sp) - 1, self.registers.a);
+                self.bus.write_byte((self.sp) - 2, self.flags.as_byte());
                 self.sp = self.sp - 2;
             },
 
@@ -679,5 +684,22 @@ mod instructions {
         assert_eq!(c.sp, 0x3A2A);
         assert_eq!(c.bus.read_byte(0x3A2B), 0x8F);
         assert_eq!(c.bus.read_byte(0x3A2A), 0x9D);
+    }
+
+    #[test]
+    fn push_psw() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xF5);
+        c.registers.a = 0x1F;
+        c.flags.c = true;
+        c.flags.z = true;
+        c.flags.p = true;
+        c.flags.s = false;
+        c.flags.a = false;
+        c.sp = 0x502A;
+        c.execute();
+        assert_eq!(c.sp, 0x5028);
+        assert_eq!(c.bus.read_byte(0x5029), 0x1F);
+        assert_eq!(c.bus.read_byte(0x5028), 0x47);
     }
 }
