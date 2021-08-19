@@ -653,6 +653,12 @@ impl CPU {
                 self.pc += 1;
             },
 
+            // ADI add immediate to accumulator
+            0xC6 => {
+                let n = self.bus.read_byte(self.pc + 1);
+                self.add(n);
+            }
+
             _ => {}
         }
 
@@ -962,5 +968,20 @@ mod instructions {
         c.bus.write_byte(0x0001, 0x88);
         c.execute();
         assert_eq!(c.registers.a, 0x88);
+    }
+
+    #[test]
+    fn adi() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xc6);
+        c.bus.write_byte(0x0001, 0x42);
+        c.registers.a = 0x14;
+        c.execute();
+        assert_eq!(c.registers.a, 0x56);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.c, false);
     }
 }
