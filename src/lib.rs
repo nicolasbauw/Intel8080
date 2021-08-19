@@ -609,6 +609,50 @@ impl CPU {
             // XTHL Exchange stack
             0xE3 => self.xthl(),
 
+            /* Immediate instructions */
+            // MVI Move immediate data
+            0x06 => {                                                       // MVI B,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.b = d8;
+                self.pc += 1;
+            },
+            0x0E => {                                                       // MVI C,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.c = d8;
+                self.pc += 1;
+            },
+            0x16 => {                                                       // MVI D,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.d = d8;
+                self.pc += 1;
+            },
+            0x1E => {                                                       // MVI E,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.e = d8;
+                self.pc += 1;
+            },
+            0x26 => {                                                       // MVI H,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.h = d8;
+                self.pc += 1;
+            },
+            0x2E => {                                                       // MVI L,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.l = d8;
+                self.pc += 1;
+            },
+            0x36 => {                                                       // MVI (HL),d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                let addr = self.registers.get_hl();
+                self.bus.write_byte(addr, d8);
+                self.pc += 1;
+            },
+            0x3E => {                                                       // MVI A,d8
+                let d8 = self.bus.read_byte(self.pc + 1);
+                self.registers.a = d8;
+                self.pc += 1;
+            },
+
             _ => {}
         }
 
@@ -909,5 +953,14 @@ mod instructions {
         assert_eq!(c.registers.get_hl(), 0x0df0);
         assert_eq!(c.bus.read_byte(0x10ad), 0x3c);
         assert_eq!(c.bus.read_byte(0x10ae), 0x0b);
+    }
+
+    #[test]
+    fn mvi() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x3e);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.registers.a, 0x88);
     }
 }
