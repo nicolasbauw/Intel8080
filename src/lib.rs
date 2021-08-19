@@ -688,10 +688,17 @@ impl CPU {
                 self.pc += 1;
             }
 
-            // XRI and immediate with accumulator
+            // XRI exclusive-or immediate with accumulator
             0xEE => {                                                       // XRI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.xra(n);
+                self.pc += 1;
+            }
+
+            // ORI or immediate with accumulator
+            0xF6 => {                                                       // ORI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.ora(n);
                 self.pc += 1;
             }
 
@@ -1096,5 +1103,17 @@ mod instructions {
         c.registers.a = 0x3b;
         c.execute();
         assert_eq!(c.registers.a, 0b1011_1010);
+    }
+
+    #[test]
+    fn ori() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x79);
+        c.bus.write_byte(0x0001, 0xf6);
+        c.bus.write_byte(0x0002, 0x0f);
+        c.registers.c = 0xb5;
+        c.execute();
+        c.execute();
+        assert_eq!(c.registers.a, 0xbf);
     }
 }
