@@ -654,9 +654,17 @@ impl CPU {
             },
 
             // ADI add immediate to accumulator
-            0xC6 => {
+            0xC6 => {                                                       // ADI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.add(n);
+                self.pc += 1;
+            },
+
+            // ACI add immediate to accumulator with carry
+            0xCE => {                                                       // ACI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.adc(n);
+                self.pc += 1;
             }
 
             _ => {}
@@ -979,6 +987,25 @@ mod instructions {
         c.execute();
         assert_eq!(c.registers.a, 0x56);
         assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn aci() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xce);
+        c.bus.write_byte(0x0001, 0xbe);
+        c.bus.write_byte(0x0002, 0xce);
+        c.bus.write_byte(0x0003, 0x42);
+        c.registers.a = 0x56;
+        c.flags.c = false;
+        c.execute();
+        c.execute();
+        assert_eq!(c.registers.a, 0x57);
+        assert_eq!(c.flags.p, false);
         assert_eq!(c.flags.a, false);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.s, false);
