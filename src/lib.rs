@@ -688,6 +688,13 @@ impl CPU {
                 self.pc += 1;
             }
 
+            // XRI and immediate with accumulator
+            0xEE => {                                                       // XRI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.xra(n);
+                self.pc += 1;
+            }
+
             _ => {}
         }
 
@@ -1079,5 +1086,15 @@ mod instructions {
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.s, false);
         assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn xri() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xee);
+        c.bus.write_byte(0x0001, 0x81);
+        c.registers.a = 0x3b;
+        c.execute();
+        assert_eq!(c.registers.a, 0b1011_1010);
     }
 }
