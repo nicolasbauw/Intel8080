@@ -181,6 +181,30 @@ impl CPU {
         self.flags.c = u32::from(h) + u32::from(n) > 0xffff;
     }
 
+    // XCHG Exchange registers
+    fn xchg(&mut self) {
+        let d = self.registers.d;
+        let e = self.registers.e;
+        let h = self.registers.h;
+        let l = self.registers.l;
+        self.registers.d = h;
+        self.registers.e = l;
+        self.registers.h = d;
+        self.registers.l = e;
+    }
+
+    // XTHL Exchange stack
+    fn xthl(&mut self) {
+        let sph = self.bus.read_byte(self.sp + 1);
+        let spl = self.bus.read_byte(self.sp);
+        let h = self.registers.h;
+        let l = self.registers.l;
+        self.bus.write_byte(self.sp, l);
+        self.bus.write_byte(self.sp + 1, h);
+        self.registers.h = sph;
+        self.registers.l = spl;
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -579,6 +603,12 @@ impl CPU {
 
             0x3B => self.sp = self.sp.wrapping_sub(1),                      // DCX SP
 
+            // XCHG Exchange registers
+            0xEB => self.xchg(),
+
+            // XTHL Exchange stack
+            0xE3 => self.xthl(),
+
             _ => {}
         }
 
@@ -854,5 +884,30 @@ mod instructions {
         c.sp = 0xFFFF;
         c.execute();
         assert_eq!(c.sp, 0xFFFF);
+    }
+
+    #[test]
+    fn xchg() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xeb);
+        c.registers.set_de(0x3355);
+        c.registers.set_hl(0x00FF);
+        c.execute();
+        assert_eq!(c.registers.get_de(), 0x00FF);
+        assert_eq!(c.registers.get_hl(), 0x3355);
+    }
+
+    #[test]
+    fn xthl() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xe3);
+        c.sp = 0x10AD;
+        c.registers.set_hl(0x0B3C);
+        c.bus.write_byte(0x10ad, 0xF0);
+        c.bus.write_byte(0x10ae, 0x0d);
+        c.execute();
+        assert_eq!(c.registers.get_hl(), 0x0df0);
+        assert_eq!(c.bus.read_byte(0x10ad), 0x3c);
+        assert_eq!(c.bus.read_byte(0x10ae), 0x0b);
     }
 }
