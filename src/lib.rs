@@ -343,16 +343,19 @@ impl CPU {
             },
             0x7F => {},                                                     // MOV A,A
 
-            0x02 => {
-                let addr = self.registers.get_bc();                         // STAX B
+            // Store accumulator
+            0x02 => {                                                       // STAX B
+                let addr = self.registers.get_bc();
                 self.bus.write_byte(addr, self.registers.a)
             }
             0x12 => {                                                       // STAX D
                 let addr = self.registers.get_de();
                 self.bus.write_byte(addr, self.registers.a)
             },
-            0x0A => {
-                let addr = self.registers.get_bc();                         // LDAX B
+
+            // Load accumulator
+            0x0A => {                                                       // LDAX B
+                let addr = self.registers.get_bc();
                 self.registers.a = self.bus.read_byte(addr)
             },
             0x1A => {                                                       // LDAX D
@@ -361,6 +364,7 @@ impl CPU {
             },
 
             /* Register or Memory to Accumulator instructions*/
+            // Add register or memory to accumulator
             0x80 => self.add(self.registers.b),                             // ADD B
             0x81 => self.add(self.registers.c),                             // ADD C
             0x82 => self.add(self.registers.d),                             // ADD D
@@ -374,6 +378,7 @@ impl CPU {
             },
             0x87 => self.add(self.registers.a),                             // ADD A
 
+            // Add register or memory to accumulator with carry
             0x88 => self.adc(self.registers.b),                             // ADC B
             0x89 => self.adc(self.registers.c),                             // ADC C
             0x8A => self.adc(self.registers.d),                             // ADC D
@@ -387,6 +392,7 @@ impl CPU {
             },
             0x8F => self.adc(self.registers.a),                             // ADC A
 
+            // Substract register or memory to accumulator
             0x90 => self.sub(self.registers.b),                             // SUB B
             0x91 => self.sub(self.registers.c),                             // SUB C
             0x92 => self.sub(self.registers.d),                             // SUB D
@@ -400,6 +406,7 @@ impl CPU {
             },
             0x97 => self.sub(self.registers.a),                             // SUB A
 
+            // Substract register or memory to accumulator with borrow
             0x98 => self.sbb(self.registers.b),                             // SBB B
             0x99 => self.sbb(self.registers.c),                             // SBB C
             0x9A => self.sbb(self.registers.d),                             // SBB D
@@ -413,6 +420,7 @@ impl CPU {
             },
             0x9F => self.sbb(self.registers.a),                             // SBB A
 
+            // Logical AND register or memory with accumulator
             0xA0 => self.ana(self.registers.b),                             // ANA B
             0xA1 => self.ana(self.registers.c),                             // ANA C
             0xA2 => self.ana(self.registers.d),                             // ANA D
@@ -426,6 +434,7 @@ impl CPU {
             },
             0xA7 => self.ana(self.registers.a),                             // ANA A
 
+            // Logical Exclusive-OR register or memory with accumulator
             0xA8 => self.xra(self.registers.b),                             // XRA B
             0xA9 => self.xra(self.registers.c),                             // XRA C
             0xAA => self.xra(self.registers.d),                             // XRA D
@@ -439,6 +448,7 @@ impl CPU {
             },
             0xAF => self.xra(self.registers.b),                             // XRA A
 
+            // Logical OR register or memory with accumulator
             0xB0 => self.ora(self.registers.b),                             // ORA B
             0xB1 => self.ora(self.registers.c),                             // ORA C
             0xB2 => self.ora(self.registers.d),                             // ORA D
@@ -452,6 +462,7 @@ impl CPU {
             },
             0xB7 => self.ora(self.registers.a),                             // ORA A
 
+            // Compare register or memory with accumulator
             0xB8 => self.cmp(self.registers.b),                             // CMP B
             0xB9 => self.cmp(self.registers.c),                             // CMP C
             0xBA => self.cmp(self.registers.d),                             // CMP D
@@ -472,6 +483,7 @@ impl CPU {
             0x1F => self.rar(),                                             // RAR
 
             /* Register pair instructions */
+            // Push data onto stack
             0xC5 => {                                                       // PUSH B
                 self.bus.write_byte((self.sp) - 1, self.registers.b);
                 self.bus.write_byte((self.sp) - 2, self.registers.c);
@@ -493,6 +505,7 @@ impl CPU {
                 self.sp = self.sp - 2;
             },
 
+            // Pop data off stack
             0xC1 => {                                                       // POP B
                 self.registers.b = self.bus.read_byte((self.sp)+1);
                 self.registers.c = self.bus.read_byte(self.sp);
@@ -518,6 +531,7 @@ impl CPU {
                 self.sp += 2;
             },
 
+            // Double add
             0x09 => self.dad(self.registers.get_bc()),                      // DAD B
             0x19 => self.dad(self.registers.get_de()),                      // DAD D
             0x29 => self.dad(self.registers.get_hl()),                      // DAD H
