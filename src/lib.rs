@@ -667,6 +667,13 @@ impl CPU {
                 self.pc += 1;
             }
 
+            // SUI add immediate to accumulator with carry
+            0xD6 => {                                                       // SUI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.sub(n);
+                self.pc += 1;
+            }
+
             _ => {}
         }
 
@@ -1010,5 +1017,20 @@ mod instructions {
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.s, false);
         assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sui() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xd6);
+        c.bus.write_byte(0x0001, 0x01);
+        c.registers.a = 0x00;
+        c.execute();
+        assert_eq!(c.registers.a, 0xFF);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.s, true);
+        assert_eq!(c.flags.c, true);
     }
 }
