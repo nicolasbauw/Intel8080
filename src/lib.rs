@@ -470,7 +470,7 @@ impl CPU {
                 let n = self.bus.read_byte(addr);
                 self.xra(n)
             },
-            0xAF => self.xra(self.registers.b),                             // XRA A
+            0xAF => self.xra(self.registers.a),                             // XRA A
 
             // ORA Logical OR register or memory with accumulator
             0xB0 => self.ora(self.registers.b),                             // ORA B
@@ -667,10 +667,17 @@ impl CPU {
                 self.pc += 1;
             }
 
-            // SUI add immediate to accumulator with carry
+            // SUI add immediate to accumulator
             0xD6 => {                                                       // SUI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sub(n);
+                self.pc += 1;
+            },
+
+            // SUI add immediate to accumulator with borrow
+            0xDE => {                                                       // SBI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.sbb(n);
                 self.pc += 1;
             }
 
@@ -1025,6 +1032,22 @@ mod instructions {
         c.bus.write_byte(0x0000, 0xd6);
         c.bus.write_byte(0x0001, 0x01);
         c.registers.a = 0x00;
+        c.execute();
+        assert_eq!(c.registers.a, 0xFF);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.s, true);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbi() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xaf);
+        c.bus.write_byte(0x0001, 0xde);
+        c.bus.write_byte(0x0002, 0x01);
+        c.execute();
         c.execute();
         assert_eq!(c.registers.a, 0xFF);
         assert_eq!(c.flags.p, true);
