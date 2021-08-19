@@ -667,17 +667,24 @@ impl CPU {
                 self.pc += 1;
             }
 
-            // SUI add immediate to accumulator
+            // SUI substract immediate from accumulator
             0xD6 => {                                                       // SUI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sub(n);
                 self.pc += 1;
             },
 
-            // SUI add immediate to accumulator with borrow
+            // SBI substract immediate from accumulator with borrow
             0xDE => {                                                       // SBI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sbb(n);
+                self.pc += 1;
+            }
+
+            // ANI and immediate with accumulator
+            0xE6 => {                                                       // ANI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.ana(n);
                 self.pc += 1;
             }
 
@@ -1055,5 +1062,22 @@ mod instructions {
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.s, true);
         assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn ani() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x79);
+        c.bus.write_byte(0x0001, 0xe6);
+        c.bus.write_byte(0x0002, 0x0f);
+        c.registers.c = 0x3a;
+        c.execute();
+        c.execute();
+        assert_eq!(c.registers.a, 0x0a);
+        assert_eq!(c.flags.p, true);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.s, false);
+        assert_eq!(c.flags.c, false);
     }
 }
