@@ -614,99 +614,83 @@ impl CPU {
             0x06 => {                                                       // MVI B,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.b = d8;
-                self.pc += 1;
             },
             0x0E => {                                                       // MVI C,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.c = d8;
-                self.pc += 1;
             },
             0x16 => {                                                       // MVI D,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.d = d8;
-                self.pc += 1;
             },
             0x1E => {                                                       // MVI E,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.e = d8;
-                self.pc += 1;
             },
             0x26 => {                                                       // MVI H,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.h = d8;
-                self.pc += 1;
             },
             0x2E => {                                                       // MVI L,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.l = d8;
-                self.pc += 1;
             },
             0x36 => {                                                       // MVI (HL),d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 let addr = self.registers.get_hl();
                 self.bus.write_byte(addr, d8);
-                self.pc += 1;
             },
             0x3E => {                                                       // MVI A,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.a = d8;
-                self.pc += 1;
             },
 
             // ADI add immediate to accumulator
             0xC6 => {                                                       // ADI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.add(n);
-                self.pc += 1;
             },
 
             // ACI add immediate to accumulator with carry
             0xCE => {                                                       // ACI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.adc(n);
-                self.pc += 1;
             },
 
             // SUI substract immediate from accumulator
             0xD6 => {                                                       // SUI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sub(n);
-                self.pc += 1;
             },
 
             // SBI substract immediate from accumulator with borrow
             0xDE => {                                                       // SBI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sbb(n);
-                self.pc += 1;
             },
 
             // ANI and immediate with accumulator
             0xE6 => {                                                       // ANI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.ana(n);
-                self.pc += 1;
             },
 
             // XRI exclusive-or immediate with accumulator
             0xEE => {                                                       // XRI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.xra(n);
-                self.pc += 1;
             },
 
             // ORI or immediate with accumulator
             0xF6 => {                                                       // ORI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.ora(n);
-                self.pc += 1;
             },
 
             // CPI compare immediate with accumulator
             0xFE => {                                                       // CPI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.cmp(n);
-                self.pc += 1;
             },
 
             /* Direct addressing instructions */
@@ -714,14 +698,12 @@ impl CPU {
             0x32 => {                                                       // STA
                 let addr = self.bus.read_word(self.pc + 1);
                 self.bus.write_byte(addr, self.registers.a);
-                self.pc += 2;
             },
 
             // LDA Store accumulator direct
             0x3A => {                                                       // LDA
                 let addr = self.bus.read_word(self.pc + 1);
                 self.registers.a = self.bus.read_byte(addr);
-                self.pc += 2;
             },
 
             // SHLD Store H and L direct
@@ -729,7 +711,6 @@ impl CPU {
                 let d = self.registers.get_hl();
                 let addr = self.bus.read_word(self.pc + 1);
                 self.bus.write_word(addr, d);
-                self.pc += 2;
             },
 
             // LHLD Store H and L direct
@@ -737,7 +718,6 @@ impl CPU {
                 let addr = self.bus.read_word(self.pc + 1);
                 let d = self.bus.read_word(addr);
                 self.registers.set_hl(d);
-                self.pc += 2;
             },
 
             /* JUMP instructions */
@@ -753,6 +733,9 @@ impl CPU {
 
         match opcode {
             0xe9 | 0xc3 => {},
+            0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E |
+            0xC6 | 0xCE | 0xD6 | 0xDE | 0xE6 | 0xEE | 0xF6 | 0xFE => self.pc += 2,
+            0x32 | 0x3A | 0x22 | 0x2A => self.pc += 3,
             _ => self.pc +=1,
         }
     }
