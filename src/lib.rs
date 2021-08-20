@@ -211,6 +211,12 @@ impl CPU {
         self.sp = self.sp - 2;
     }
 
+    // subroutine stack pop
+    fn subroutine_stack_pop(&mut self) {
+        self.pc = self.bus.read_word(self.sp);
+        self.sp += 2;
+    }
+
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
         let opcode = self.bus.read_byte(self.pc);
@@ -831,13 +837,21 @@ impl CPU {
                 if !self.flags.p { self.pc = addr; }
             },
 
+            /* Return from subroutine instructions */
+            // RET Return
+            0xC9 => self.subroutine_stack_pop(),                            // RET
+            // RC Return if carry
+            0xD8 => if self.flags.c { self.subroutine_stack_pop(); },       // RC
+            // RNC Return if no carry
+            0xD0 => if !self.flags.c { self.subroutine_stack_pop(); },      // RNC
 
             _ => {}
         }
 
         match opcode {
             0xe9 | 0xc3 | 0xDA | 0xD2 | 0xCA | 0xC2 | 0xFA | 0xF2 | 0xEA | 0xE2 |
-            0xCD | 0xDC | 0xD4 | 0xCC | 0xC4 | 0xFC | 0xF4 | 0xEC | 0xE4 => {},
+            0xCD | 0xDC | 0xD4 | 0xCC | 0xC4 | 0xFC | 0xF4 | 0xEC | 0xE4 |
+            0xC9 | 0xD8 | 0xD0 => {},
             0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E |
             0xC6 | 0xCE | 0xD6 | 0xDE | 0xE6 | 0xEE | 0xF6 | 0xFE => self.pc += 2,
             0x32 | 0x3A | 0x22 | 0x2A => self.pc += 3,
