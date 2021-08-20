@@ -742,11 +742,19 @@ impl CPU {
 
             /* JUMP instructions */
             // Load program counter
-            0xE9 => { self.pc = self.registers.get_hl() - 1; },                 // PCHL
+            0xE9 => { self.pc = self.registers.get_hl(); },                 // PCHL
+            // JMP Jump
+            0xC3 => {                                                       // JMP
+                let addr = self.bus.read_word(self.pc + 1);
+                self.pc = addr;
+            }
             _ => {}
         }
 
-        self.pc +=1;
+        match opcode {
+            0xe9 | 0xc3 => {},
+            _ => self.pc +=1,
+        }
     }
 }
 
@@ -1203,5 +1211,15 @@ mod instructions {
         c.registers.l = 0x3e;
         c.execute();
         assert_eq!(c.pc, 0x413e);
+    }
+
+    #[test]
+    fn jmp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xc3);
+        c.bus.write_byte(0x0001, 0x00);
+        c.bus.write_byte(0x0002, 0x3e);
+        c.execute();
+        assert_eq!(c.pc, 0x3e00);
     }
 }
