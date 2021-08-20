@@ -856,6 +856,12 @@ impl CPU {
             0xE8 => if self.flags.p { self.subroutine_stack_pop(); },       // RPE
             // RPO Return if parity odd
             0xE0 => if !self.flags.p { self.subroutine_stack_pop(); },      // RPO
+
+            /* Interrupt flip-flop instructions */
+            // EI Enable interrupts
+            0xFB => {},
+            // DI Disable Interrupts
+            0xF3 => {},
             
             _ => {}
         }
