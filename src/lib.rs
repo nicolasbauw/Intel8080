@@ -731,6 +731,13 @@ impl CPU {
                 self.bus.write_word(addr, d);
             },
 
+            // LHLD Store H and L direct
+            0x2A => {                                                       // LHLD
+                let addr = self.bus.read_word(self.pc + 1);
+                let d = self.bus.read_word(addr);
+                self.registers.set_hl(d);
+            },
+
             _ => {}
         }
 
@@ -1168,5 +1175,18 @@ mod instructions {
         c.registers.set_hl(0xae29);
         c.execute();
         assert_eq!(c.bus.read_word(0x010a), 0xae29);
+    }
+
+    #[test]
+    fn lhld() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x2a);
+        c.bus.write_byte(0x0001, 0x5b);
+        c.bus.write_byte(0x0002, 0x02);
+        c.bus.write_byte(0x025b, 0xff);
+        c.bus.write_byte(0x025c, 0x03);
+        c.execute();
+        assert_eq!(c.registers.l, 0xff);
+        assert_eq!(c.registers.h, 0x03);
     }
 }
