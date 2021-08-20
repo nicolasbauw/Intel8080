@@ -729,6 +729,7 @@ impl CPU {
                 let d = self.registers.get_hl();
                 let addr = self.bus.read_word(self.pc + 1);
                 self.bus.write_word(addr, d);
+                self.pc += 2;
             },
 
             // LHLD Store H and L direct
@@ -736,7 +737,10 @@ impl CPU {
                 let addr = self.bus.read_word(self.pc + 1);
                 let d = self.bus.read_word(addr);
                 self.registers.set_hl(d);
+                self.pc += 2;
             },
+
+            /* JUMP instructions */
 
             _ => {}
         }
