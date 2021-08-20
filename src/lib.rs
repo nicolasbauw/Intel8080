@@ -665,7 +665,7 @@ impl CPU {
                 let n = self.bus.read_byte(self.pc + 1);
                 self.adc(n);
                 self.pc += 1;
-            }
+            },
 
             // SUI substract immediate from accumulator
             0xD6 => {                                                       // SUI
@@ -679,35 +679,43 @@ impl CPU {
                 let n = self.bus.read_byte(self.pc + 1);
                 self.sbb(n);
                 self.pc += 1;
-            }
+            },
 
             // ANI and immediate with accumulator
             0xE6 => {                                                       // ANI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.ana(n);
                 self.pc += 1;
-            }
+            },
 
             // XRI exclusive-or immediate with accumulator
             0xEE => {                                                       // XRI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.xra(n);
                 self.pc += 1;
-            }
+            },
 
             // ORI or immediate with accumulator
             0xF6 => {                                                       // ORI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.ora(n);
                 self.pc += 1;
-            }
+            },
 
             // CPI compare immediate with accumulator
             0xFE => {                                                       // CPI
                 let n = self.bus.read_byte(self.pc + 1);
                 self.cmp(n);
                 self.pc += 1;
-            }
+            },
+
+            /* Direct addressing instructions */
+            // STA Store accumulator direct
+            0x32 => {
+                let addr = self.bus.read_word(self.pc + 1);
+                self.bus.write_byte(addr, self.registers.a);
+                self.pc += 2;
+            },
 
             _ => {}
         }
