@@ -844,6 +844,10 @@ impl CPU {
             0xD8 => if self.flags.c { self.subroutine_stack_pop(); },       // RC
             // RNC Return if no carry
             0xD0 => if !self.flags.c { self.subroutine_stack_pop(); },      // RNC
+            // RZ Return if zero
+            0xC8 => if self.flags.z { self.subroutine_stack_pop(); },       // RZ
+            // RNZ Return if not zero
+            0xC0 => if !self.flags.z { self.subroutine_stack_pop(); },      // RNZ
 
             _ => {}
         }
