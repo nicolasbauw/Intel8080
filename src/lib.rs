@@ -711,9 +711,16 @@ impl CPU {
 
             /* Direct addressing instructions */
             // STA Store accumulator direct
-            0x32 => {
+            0x32 => {                                                       // STA
                 let addr = self.bus.read_word(self.pc + 1);
                 self.bus.write_byte(addr, self.registers.a);
+                self.pc += 2;
+            },
+
+            // LDA Store accumulator direct
+            0x3A => {                                                       // LDA
+                let addr = self.bus.read_word(self.pc + 1);
+                self.registers.a = self.bus.read_byte(addr);
                 self.pc += 2;
             },
 
