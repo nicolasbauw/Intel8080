@@ -724,6 +724,13 @@ impl CPU {
                 self.pc += 2;
             },
 
+            // SHLD Store H and L direct
+            0x22 => {                                                       // SHLD
+                let d = self.registers.get_hl();
+                let addr = self.bus.read_word(self.pc + 1);
+                self.bus.write_word(addr, d);
+            },
+
             _ => {}
         }
 
@@ -1150,5 +1157,16 @@ mod instructions {
         c.execute();
         assert_eq!(c.flags.c, false);
         assert_eq!(c.flags.z, false);
+    }
+
+    #[test]
+    fn shld() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x22);
+        c.bus.write_byte(0x0001, 0x0a);
+        c.bus.write_byte(0x0002, 0x01);
+        c.registers.set_hl(0xae29);
+        c.execute();
+        assert_eq!(c.bus.read_word(0x010a), 0xae29);
     }
 }
