@@ -741,7 +741,8 @@ impl CPU {
             },
 
             /* JUMP instructions */
-
+            // Load program counter
+            0xE9 => { self.pc = self.registers.get_hl() - 1; },                 // PCHL
             _ => {}
         }
 
@@ -1192,5 +1193,15 @@ mod instructions {
         c.execute();
         assert_eq!(c.registers.l, 0xff);
         assert_eq!(c.registers.h, 0x03);
+    }
+
+    #[test]
+    fn pchl() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xe9);
+        c.registers.h = 0x41;
+        c.registers.l = 0x3e;
+        c.execute();
+        assert_eq!(c.pc, 0x413e);
     }
 }
