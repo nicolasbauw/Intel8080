@@ -777,11 +777,24 @@ impl CPU {
 
             /* Call subroutine instructions */
             // CALL
-            0xCD => {
+            0xCD => {                                                       // CALL
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
                 self.pc = addr;
             },
+            // CC Call if carry
+            0xDC => {                                                       // CC
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if self.flags.c { self.pc = addr; }
+            },
+            // CNC Call if no carry
+            0xD4 => {                                                       // CNC
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if !self.flags.c { self.pc = addr; }
+            },
+
 
             _ => {}
         }
