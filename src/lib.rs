@@ -794,6 +794,18 @@ impl CPU {
                 self.subroutine_stack_push();
                 if !self.flags.c { self.pc = addr; }
             },
+            // CZ Call if zero
+            0xCC => {                                                       // CZ
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if self.flags.z { self.pc = addr; }
+            },
+            // CNZ Call if not zero
+            0xC4 => {                                                       // CNZ
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if !self.flags.z { self.pc = addr; }
+            },
 
 
             _ => {}
