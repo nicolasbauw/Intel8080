@@ -806,6 +806,18 @@ impl CPU {
                 self.subroutine_stack_push();
                 if !self.flags.z { self.pc = addr; }
             },
+            // CM Call if minus
+            0xFC => {                                                       // CM
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if self.flags.s { self.pc = addr; }
+            },
+            // CP Call if plus
+            0xF4 => {                                                       // CP
+                let addr = self.bus.read_word(self.pc + 1);
+                self.subroutine_stack_push();
+                if !self.flags.s { self.pc = addr; }
+            },
 
 
             _ => {}
@@ -813,7 +825,7 @@ impl CPU {
 
         match opcode {
             0xe9 | 0xc3 | 0xDA | 0xD2 | 0xCA | 0xC2 | 0xFA | 0xF2 | 0xEA | 0xE2 |
-            0xCD => {},
+            0xCD | 0xDC | 0xD4 | 0xCC | 0xC4 | 0xFC | 0xF4 => {},
             0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E |
             0xC6 | 0xCE | 0xD6 | 0xDE | 0xE6 | 0xEE | 0xF6 | 0xFE => self.pc += 2,
             0x32 | 0x3A | 0x22 | 0x2A => self.pc += 3,
