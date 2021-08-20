@@ -364,7 +364,7 @@ impl CPU {
                 self.bus.write_byte(addr, self.registers.l)
             },
 
-            0x76 => {
+            0x76 => {                                                       // HLT
                 self.halt = true;
                 self.pc += 1;
             },
