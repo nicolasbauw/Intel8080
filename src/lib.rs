@@ -702,6 +702,13 @@ impl CPU {
                 self.pc += 1;
             }
 
+            // CPI compare immediate with accumulator
+            0xFE => {                                                       // CPI
+                let n = self.bus.read_byte(self.pc + 1);
+                self.cmp(n);
+                self.pc += 1;
+            }
+
             _ => {}
         }
 
@@ -1115,5 +1122,18 @@ mod instructions {
         c.execute();
         c.execute();
         assert_eq!(c.registers.a, 0xbf);
+    }
+
+    #[test]
+    fn cpi() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x3e);
+        c.bus.write_byte(0x0001, 0x4a);
+        c.bus.write_byte(0x0002, 0xfe);
+        c.bus.write_byte(0x0003, 0x40);
+        c.execute();
+        c.execute();
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.flags.z, false);
     }
 }
