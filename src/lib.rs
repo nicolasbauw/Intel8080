@@ -758,12 +758,22 @@ impl CPU {
                 let addr = self.bus.read_word(self.pc + 1);
                 if !self.flags.s { self.pc = addr; }
             },
+            // JPE Jump if parity even
+            0xEA => {                                                       // JPE
+                let addr = self.bus.read_word(self.pc + 1);
+                if self.flags.p { self.pc = addr; }
+            },
+            // JPO Jump if parity odd
+            0xE2 => {                                                       // JPO
+                let addr = self.bus.read_word(self.pc + 1);
+                if self.flags.p { self.pc = addr; }
+            },
 
             _ => {}
         }
 
         match opcode {
-            0xe9 | 0xc3 | 0xDA | 0xD2 | 0xCA | 0xC2 | 0xFA | 0xF2 => {},
+            0xe9 | 0xc3 | 0xDA | 0xD2 | 0xCA | 0xC2 | 0xFA | 0xF2 | 0xEA | 0xE2 => {},
             0x06 | 0x0E | 0x16 | 0x1E | 0x26 | 0x2E | 0x36 | 0x3E |
             0xC6 | 0xCE | 0xD6 | 0xDE | 0xE6 | 0xEE | 0xF6 | 0xFE => self.pc += 2,
             0x32 | 0x3A | 0x22 | 0x2A => self.pc += 3,
