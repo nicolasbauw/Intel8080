@@ -733,32 +733,32 @@ impl CPU {
                 let addr = self.bus.read_word(self.pc + 1);
                 if self.flags.c { self.pc = addr; }
             },
-            // JNC Jump if nocarry
+            // JNC Jump if no carry
             0xD2 => {                                                       // JNC
                 let addr = self.bus.read_word(self.pc + 1);
                 if !self.flags.c { self.pc = addr; }
             },
-            // JZ Jump if carry
+            // JZ Jump if zero
             0xCA => {                                                       // JZ
                 let addr = self.bus.read_word(self.pc + 1);
                 if self.flags.z { self.pc = addr; }
             },
-            // JNZ Jump if carry
+            // JNZ Jump if not zero
             0xC2 => {                                                       // JNZ
                 let addr = self.bus.read_word(self.pc + 1);
                 if !self.flags.z { self.pc = addr; }
             },
-            // JM Jump if carry
+            // JM Jump if minus
             0xFA => {                                                       // JM
                 let addr = self.bus.read_word(self.pc + 1);
                 if self.flags.s { self.pc = addr; }
             },
-            // JP Jump if carry
+            // JP Jump if positive
             0xF2 => {                                                       // JP
                 let addr = self.bus.read_word(self.pc + 1);
                 if !self.flags.s { self.pc = addr; }
             },
-            
+
             _ => {}
         }
 
