@@ -12,7 +12,8 @@ pub struct CPU {
     pub flags: Flags,
     pub pc: u16,
     pub sp: u16,
-    pub bus: AddressBus
+    pub bus: AddressBus,
+    halt: bool
 }
 
 impl CPU {
@@ -23,6 +24,7 @@ impl CPU {
             pc: 0,
             sp: 0,
             bus: AddressBus::new(),
+            halt: false
         }
     }
 
@@ -219,6 +221,7 @@ impl CPU {
 
     // fetches and executes instruction from (pc)
     pub fn execute(&mut self) {
+        if self.halt { return };
         let opcode = self.bus.read_byte(self.pc);
         match opcode {
             /* Carry bit instructions */
@@ -361,7 +364,10 @@ impl CPU {
                 self.bus.write_byte(addr, self.registers.l)
             },
 
-            0x76 => {/* TODO : HLT */},
+            0x76 => {
+                self.halt = true;
+                self.pc += 1;
+            },
             0x77 => {                                                       // MOV (HL), A
                 let addr = self.registers.get_hl();
                 self.bus.write_byte(addr, self.registers.a)
@@ -868,7 +874,7 @@ impl CPU {
             0xDB => {},
             // OUT Output
             0xD3 => {},
-            
+
             _ => {}
         }
 
