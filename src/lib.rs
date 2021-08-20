@@ -862,6 +862,12 @@ impl CPU {
             0xFB => {},
             // DI Disable Interrupts
             0xF3 => {},
+
+            /* Input / output instructions */
+            // IN Input
+            0xDB => {},
+            // OUT Output
+            0xD3 => {},
             
             _ => {}
         }
