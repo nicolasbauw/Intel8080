@@ -7,5 +7,5 @@ start:  mvi    c,9      ; BDOS function: output string
         lxi    d,msg    ; address of msg
         call   bdos
         hlt             ; Stops execution
-msg    .text   "Hello, world!"
+msg    .text   "Hello, world!$"
        .end
