@@ -629,6 +629,22 @@ impl CPU {
 
             /* Immediate instructions */
             // MVI Move immediate data
+            0x01 => {                                                       // LXI B
+                let d16 = self.bus.read_word(self.pc + 1); 
+                self.registers.set_bc(d16);
+            },
+            0x11 => {                                                       // LXI D
+                let d16 = self.bus.read_word(self.pc + 1); 
+                self.registers.set_de(d16);
+            },
+            0x21 => {                                                       // LXI H
+                let d16 = self.bus.read_word(self.pc + 1); 
+                self.registers.set_hl(d16);
+            },
+            0x31 => {                                                       // LXI SP
+                let d16 = self.bus.read_word(self.pc + 1); 
+                self.sp = d16;
+            },
             0x06 => {                                                       // MVI B,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.b = d8;
@@ -887,6 +903,12 @@ impl CPU {
             0x32 | 0x3A | 0x22 | 0x2A => self.pc += 3,
             _ => self.pc +=1,
         }
+
+        #[cfg(debug_assertions)]
+        {
+            println!("opcode : {:x}\tPC : {:x}\tSP : {:x}", opcode, self.pc, self.sp);
+        }
+
     }
 }
 
