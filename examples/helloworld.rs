@@ -17,7 +17,7 @@ fn main() {
     loop {
         c.execute();
         if c.pc == 0x0005 { bdos_call(&c) }
-        if c.halt == true { break }
+        if c.pc == 0x0000 { break }
     }
 }
 
