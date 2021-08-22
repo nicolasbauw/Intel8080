@@ -483,7 +483,7 @@ impl CPU {
             0xAB => self.xra(self.registers.e),                             // XRA E
             0xAC => self.xra(self.registers.h),                             // XRA H
             0xAD => self.xra(self.registers.l),                             // XRA L
-            0xAE => {                                                       // ANA (HL)
+            0xAE => {                                                       // XNA (HL)
                 let addr = self.registers.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.xra(n)
@@ -765,42 +765,42 @@ impl CPU {
             // JC Jump if carry
             0xDA => {                                                       // JC
                 let addr = self.bus.read_word(self.pc + 1);
-                if self.flags.c { self.pc = addr; }
+                if self.flags.c { self.pc = addr; } else { self.pc += 3 }
             },
             // JNC Jump if no carry
             0xD2 => {                                                       // JNC
                 let addr = self.bus.read_word(self.pc + 1);
-                if !self.flags.c { self.pc = addr; }
+                if !self.flags.c { self.pc = addr; } else { self.pc += 3 }
             },
             // JZ Jump if zero
             0xCA => {                                                       // JZ
                 let addr = self.bus.read_word(self.pc + 1);
-                if self.flags.z { self.pc = addr; }
+                if self.flags.z { self.pc = addr; } else { self.pc += 3 }
             },
             // JNZ Jump if not zero
             0xC2 => {                                                       // JNZ
                 let addr = self.bus.read_word(self.pc + 1);
-                if !self.flags.z { self.pc = addr; }
+                if !self.flags.z { self.pc = addr; } else { self.pc += 3 }
             },
             // JM Jump if minus
             0xFA => {                                                       // JM
                 let addr = self.bus.read_word(self.pc + 1);
-                if self.flags.s { self.pc = addr; }
+                if self.flags.s { self.pc = addr; } else { self.pc += 3 }
             },
             // JP Jump if positive
             0xF2 => {                                                       // JP
                 let addr = self.bus.read_word(self.pc + 1);
-                if !self.flags.s { self.pc = addr; }
+                if !self.flags.s { self.pc = addr; } else { self.pc += 3 }
             },
             // JPE Jump if parity even
             0xEA => {                                                       // JPE
                 let addr = self.bus.read_word(self.pc + 1);
-                if self.flags.p { self.pc = addr; }
+                if self.flags.p { self.pc = addr; } else { self.pc += 3 }
             },
             // JPO Jump if parity odd
             0xE2 => {                                                       // JPO
                 let addr = self.bus.read_word(self.pc + 1);
-                if self.flags.p { self.pc = addr; }
+                if !self.flags.p { self.pc = addr; } else { self.pc += 3 }
             },
 
             /* Call subroutine instructions */
@@ -814,49 +814,49 @@ impl CPU {
             0xDC => {                                                       // CC
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if self.flags.c { self.pc = addr; }
+                if self.flags.c { self.pc = addr; } else { self.pc += 3 }
             },
             // CNC Call if no carry
             0xD4 => {                                                       // CNC
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if !self.flags.c { self.pc = addr; }
+                if !self.flags.c { self.pc = addr; } else { self.pc += 3 }
             },
             // CZ Call if zero
             0xCC => {                                                       // CZ
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if self.flags.z { self.pc = addr; }
+                if self.flags.z { self.pc = addr; } else { self.pc += 3 }
             },
             // CNZ Call if not zero
             0xC4 => {                                                       // CNZ
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if !self.flags.z { self.pc = addr; }
+                if !self.flags.z { self.pc = addr; } else { self.pc += 3 }
             },
             // CM Call if minus
             0xFC => {                                                       // CM
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if self.flags.s { self.pc = addr; }
+                if self.flags.s { self.pc = addr; } else { self.pc += 3 }
             },
             // CP Call if plus
             0xF4 => {                                                       // CP
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if !self.flags.s { self.pc = addr; }
+                if !self.flags.s { self.pc = addr; } else { self.pc += 3 }
             },
             // CPE Call if parity even
             0xEC => {                                                       // CPE
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if self.flags.p { self.pc = addr; }
+                if self.flags.p { self.pc = addr; } else { self.pc += 3 }
             },
             // CPO Call if parity odd
             0xE4 => {                                                       // CPO
                 let addr = self.bus.read_word(self.pc + 1);
                 self.subroutine_stack_push();
-                if !self.flags.p { self.pc = addr; }
+                if !self.flags.p { self.pc = addr; } else { self.pc += 3 }
             },
 
             /* Return from subroutine instructions */
@@ -906,7 +906,7 @@ impl CPU {
 
         #[cfg(debug_assertions)]
         {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}", opcode, self.pc, self.sp);
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tS : {}", opcode, self.pc, self.sp, self.flags.z, self.flags.s);
         }
 
     }
