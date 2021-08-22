@@ -3,7 +3,7 @@ use intel8080::*;
 fn main() {
     let mut c = CPU::new();
     // Loads assembled program into memory
-    c.bus.load_bin("/Volumes/T7/Dev/Intel8080/examples/helloworld.bin", 0x100).unwrap();
+    c.bus.load_bin("examples/helloworld.bin", 0x100).unwrap();
     
     // RET at 0x05 for mocking of CP/M BDOS system calls
     c.bus.write_word(0x0005, 0xc9);
