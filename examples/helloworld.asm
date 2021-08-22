@@ -1,6 +1,6 @@
  .target "8080"
  .format "bin"
- .org $100
+ .org $100              ; Useless : "bin" format has no header
  
 bdos    .equ    $0005   ; BDOS entry point
 start:  mvi    c,9      ; BDOS function: output string
