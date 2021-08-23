@@ -176,11 +176,12 @@ impl CPU {
     }
 
     // DAD Double add
-    fn dad(&mut self, n: u16) {
+    fn dad(&mut self, n: u16) -> u16 {
         let h = self.registers.get_hl();
         let r = h.wrapping_add(n);
         self.registers.set_hl(r);
         self.flags.c = u32::from(h) + u32::from(n) > 0xffff;
+        r
     }
 
     // XCHG Exchange registers
@@ -205,6 +206,22 @@ impl CPU {
         self.bus.write_byte(self.sp + 1, h);
         self.registers.h = sph;
         self.registers.l = spl;
+    }
+
+    // Decimal adjust accumulator
+    fn daa(&mut self) {
+        let lsb = self.registers.a & 0x0F;
+        if (lsb > 9) | self.flags.a {
+            if (self.registers.a & 0x0F + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
+            self.registers.a += 6;
+        }
+
+        let msb = self.registers.a >> 4;
+        if (msb > 9) | self.flags.c {
+            if (self.registers.a >> 4 ) > 0x09 { self.flags.c = true } else { self.flags.c = false }
+            let a = self.registers.a.wrapping_add(0x60);
+            self.registers.a = a;
+        }
     }
 
     // subroutine stack push
@@ -261,7 +278,7 @@ impl CPU {
             0x2F => self.registers.a = !self.registers.a,                   // CMA
 
             // Decimal adjust accumulator
-            // TODO : DAA
+            0x27 => self.daa(),
 
             // NOP No Operation
             0x00 => {},                                                     // NOP
@@ -574,10 +591,22 @@ impl CPU {
             },
 
             // DAD Double add
-            0x09 => self.dad(self.registers.get_bc()),                      // DAD B
-            0x19 => self.dad(self.registers.get_de()),                      // DAD D
-            0x29 => self.dad(self.registers.get_hl()),                      // DAD H
-            0x39 => self.dad(self.sp),                                      // DAD SP
+            0x09 => {                                                       // DAD B
+                let reg = self.registers.get_bc();
+                self.dad(reg);
+            },
+            0x19 => {                                                       // DAD D
+                let reg = self.registers.get_de();
+                self.dad(reg);
+            },
+            0x29 => {                                                       // DAD H
+                let reg = self.registers.get_hl();
+                self.dad(reg);
+            },
+            0x39 => {                                                       // DAD SP
+                let reg = self.sp;
+                self.dad(reg);
+            },
 
             // INX Increment register pair
             0x03 => {                                                       // INX B
@@ -1376,5 +1405,18 @@ mod instructions {
         c.bus.write_byte(0x0002, 0x3e);
         c.execute();
         assert_eq!(c.pc, 0x3e00);
+    }
+
+    #[test]
+    fn daa() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x27);
+        c.registers.a = 0x9B;
+        c.flags.a = false;
+        c.flags.c = false;
+        c.execute();
+        assert_eq!(c.registers.a, 1);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, true);
     }
 }
