@@ -292,7 +292,7 @@ impl CPU {
             0x4F => self.registers.c = self.registers.a,                    // MOV C,A
 
             0x50 => self.registers.d = self.registers.b,                    // MOV D,B                                                     // MOV B,B
-            0x51 => self.registers.d = self.registers.b,                    // MOV D,C
+            0x51 => self.registers.d = self.registers.c,                    // MOV D,C
             0x52 => {},                                                     // MOV D,D
             0x53 => self.registers.d = self.registers.e,                    // MOV D,E
             0x54 => self.registers.d = self.registers.h,                    // MOV D,H
@@ -906,7 +906,7 @@ impl CPU {
 
         #[cfg(debug_assertions)]
         {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tP : {}", opcode, self.pc, self.sp, self.flags.z, self.flags.p);
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tA : {:#04x}", opcode, self.pc, self.sp, self.flags.z, self.registers.a);
         }
 
     }
