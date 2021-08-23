@@ -940,7 +940,7 @@ impl CPU {
 
         #[cfg(debug_assertions)]
         {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tA : {}\tA : {:#04x}", opcode, self.pc, self.sp, self.flags.a, self.registers.a);
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tL : {:#04x}\tA : {:#04x}", opcode, self.pc, self.sp, self.registers.l, self.registers.a);
         }
 
     }
