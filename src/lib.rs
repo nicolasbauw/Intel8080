@@ -589,13 +589,13 @@ impl CPU {
             0x13 => {                                                       // INX D
                 let mut d = self.registers.get_de();
                 d = d.wrapping_add(1);
-                self.registers.set_bc(d);
+                self.registers.set_de(d);
             },
 
             0x23 => {                                                       // INX H
                 let mut h = self.registers.get_hl();
                 h = h.wrapping_add(1);
-                self.registers.set_bc(h);
+                self.registers.set_hl(h);
             }
 
             0x33 => self.sp = self.sp.wrapping_add(1),                      // INX SP
@@ -628,7 +628,7 @@ impl CPU {
             0xE3 => self.xthl(),
 
             /* Immediate instructions */
-            // MVI Move immediate data
+            // LXI Move immediate data
             0x01 => {                                                       // LXI B
                 let d16 = self.bus.read_word(self.pc + 1); 
                 self.registers.set_bc(d16);
@@ -645,6 +645,7 @@ impl CPU {
                 let d16 = self.bus.read_word(self.pc + 1); 
                 self.sp = d16;
             },
+            // MVI Move immediate data
             0x06 => {                                                       // MVI B,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
                 self.registers.b = d8;
