@@ -861,23 +861,23 @@ impl CPU {
 
             /* Return from subroutine instructions */
             // RET Return
-            0xC9 => self.subroutine_stack_pop(),                            // RET
+            0xC9 => self.subroutine_stack_pop(),                                                    // RET
             // RC Return if carry
-            0xD8 => if self.flags.c { self.subroutine_stack_pop(); },       // RC
+            0xD8 => if self.flags.c { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RC
             // RNC Return if no carry
-            0xD0 => if !self.flags.c { self.subroutine_stack_pop(); },      // RNC
+            0xD0 => if !self.flags.c { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RNC
             // RZ Return if zero
-            0xC8 => if self.flags.z { self.subroutine_stack_pop(); },       // RZ
+            0xC8 => if self.flags.z { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RZ
             // RNZ Return if not zero
-            0xC0 => if !self.flags.z { self.subroutine_stack_pop(); },      // RNZ
+            0xC0 => if !self.flags.z { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RNZ
             // RM Return if minus
-            0xF8 => if self.flags.s { self.subroutine_stack_pop(); },       // RM
+            0xF8 => if self.flags.s { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RM
             // RP Return if plus
-            0xF0 => if !self.flags.s { self.subroutine_stack_pop(); },      // RP
+            0xF0 => if !self.flags.s { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RP
             // RPE Return if parity even
-            0xE8 => if self.flags.p { self.subroutine_stack_pop(); },       // RPE
+            0xE8 => if self.flags.p { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RPE
             // RPO Return if parity odd
-            0xE0 => if !self.flags.p { self.subroutine_stack_pop(); },      // RPO
+            0xE0 => if !self.flags.p { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RPO
 
             /* Interrupt flip-flop instructions */
             // EI Enable interrupts
@@ -906,7 +906,7 @@ impl CPU {
 
         #[cfg(debug_assertions)]
         {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tS : {}", opcode, self.pc, self.sp, self.flags.z, self.flags.s);
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tP : {}", opcode, self.pc, self.sp, self.flags.z, self.flags.p);
         }
 
     }
