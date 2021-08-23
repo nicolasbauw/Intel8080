@@ -610,13 +610,13 @@ impl CPU {
             0x1B => {                                                       // DCX D
                 let mut d = self.registers.get_de();
                 d = d.wrapping_sub(1);
-                self.registers.set_bc(d);
+                self.registers.set_de(d);
             },
 
             0x2B => {                                                       // DCX H
                 let mut h = self.registers.get_hl();
                 h = h.wrapping_sub(1);
-                self.registers.set_bc(h);
+                self.registers.set_hl(h);
             }
 
             0x3B => self.sp = self.sp.wrapping_sub(1),                      // DCX SP
