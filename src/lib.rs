@@ -122,7 +122,7 @@ impl CPU {
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.c = false;
-        self.flags.a = (a & 0x0f) + (n & 0x0f) > 0x0f;
+        self.flags.a = false;
         self.registers.a = r;
     }
 
@@ -133,6 +133,7 @@ impl CPU {
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.c = false;
+        self.flags.a = false;
         self.registers.a = r;
     }
 
@@ -656,6 +657,9 @@ impl CPU {
             // XTHL Exchange stack
             0xE3 => self.xthl(),
 
+            // SPHL Load SP from H and L
+            0xF9 => self.sp = self.registers.get_hl(),
+
             /* Immediate instructions */
             // LXI Move immediate data
             0x01 => {                                                       // LXI B
@@ -936,7 +940,7 @@ impl CPU {
 
         #[cfg(debug_assertions)]
         {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tZ : {}\tA : {:#04x}", opcode, self.pc, self.sp, self.flags.z, self.registers.a);
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tA : {}\tA : {:#04x}", opcode, self.pc, self.sp, self.flags.a, self.registers.a);
         }
 
     }
@@ -1418,5 +1422,15 @@ mod instructions {
         assert_eq!(c.registers.a, 1);
         assert_eq!(c.flags.a, true);
         assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sphl() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xf9);
+        c.registers.h = 0x50;
+        c.registers.l = 0x6c;
+        c.execute();
+        assert_eq!(c.sp, 0x506c)
     }
 }
