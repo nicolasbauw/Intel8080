@@ -177,12 +177,11 @@ impl CPU {
     }
 
     // DAD Double add
-    fn dad(&mut self, n: u16) -> u16 {
+    fn dad(&mut self, n: u16) {
         let h = self.registers.get_hl();
         let r = h.wrapping_add(n);
         self.registers.set_hl(r);
         self.flags.c = u32::from(h) + u32::from(n) > 0xffff;
-        r
     }
 
     // XCHG Exchange registers
@@ -199,14 +198,10 @@ impl CPU {
 
     // XTHL Exchange stack
     fn xthl(&mut self) {
-        let sph = self.bus.read_byte(self.sp + 1);
-        let spl = self.bus.read_byte(self.sp);
-        let h = self.registers.h;
-        let l = self.registers.l;
-        self.bus.write_byte(self.sp, l);
-        self.bus.write_byte(self.sp + 1, h);
-        self.registers.h = sph;
-        self.registers.l = spl;
+        let pointed_by_sp = self.bus.read_word(self.sp);
+        let hl = self.registers.get_hl();
+        self.bus.write_word(self.sp, hl);
+        self.registers.set_hl(pointed_by_sp);
     }
 
     // Decimal adjust accumulator
