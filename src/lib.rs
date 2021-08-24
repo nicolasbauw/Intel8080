@@ -776,7 +776,7 @@ impl CPU {
                 self.bus.write_word(addr, d);
             },
 
-            // LHLD Store H and L direct
+            // LHLD Load H and L direct
             0x2A => {                                                       // LHLD
                 let addr = self.bus.read_word(self.pc + 1);
                 let d = self.bus.read_word(addr);
