@@ -20,9 +20,6 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
     // Setting PC to 0x0100 (CP/M Binaries are loaded with a 256 byte offset)
     c.pc = 0x0100;
 
-    // Setting stack
-    c.sp = 0xFF00;
-
     loop {
         c.execute();
         if c.pc == 0x0005 { bdos_call(&c) }
