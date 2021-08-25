@@ -166,7 +166,7 @@ impl CPU {
         }
     }
     
-    // RAL Rotate accumulator right through carry
+    // RAR Rotate accumulator right through carry
     fn rar(&mut self) {
         let c = self.flags.c;
         self.flags.c = bit::get(self.registers.a, 0);
