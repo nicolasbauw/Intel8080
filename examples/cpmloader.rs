@@ -20,6 +20,14 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
     // Setting PC to 0x0100 (CP/M Binaries are loaded with a 256 byte offset)
     c.pc = 0x0100;
 
+    /* Setting up stack : by reverse engineering assembled CP/M software, it seems
+    that the $0006 address is read to set the stack */
+    c.bus.write_word(0x0006, 0xFF00);
+    
+    /* Setting up stack in case of the program does not read the $0006 address
+    and does not set any stack. */
+    c.sp = 0xFF00;
+
     loop {
         c.execute();
         if c.pc == 0x0005 { bdos_call(&c) }
