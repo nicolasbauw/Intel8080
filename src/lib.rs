@@ -44,7 +44,7 @@ impl CPU {
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        self.flags.a = (n & 0x0f) + 0x01 > 0x0f;
+        self.flags.a = (r & 0x0f) != 0x0f;
         r
     }
 
