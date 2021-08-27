@@ -218,6 +218,10 @@ impl CPU {
             let a = self.registers.a.wrapping_add(0x60);
             self.registers.a = a;
         }
+        let a = self.registers.a;
+        self.flags.z = a == 0x00;
+        self.flags.s = bit::get(a, 7);
+        self.flags.p = a.count_ones() & 0x01 == 0x00;
     }
 
     // subroutine stack push
