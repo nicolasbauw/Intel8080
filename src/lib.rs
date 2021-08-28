@@ -1,7 +1,33 @@
-mod register;
-mod flags;
-mod memory;
-mod bit;
+//! Yet another Intel 8080 Emulator. So far it passes the TST8080 and 8080PRE tests.
+//! 
+//! Basic exemple for a small loop:
+//! ```rust
+//! use intel8080::CPU;
+//! let mut c = CPU::new();
+//! c.bus.write_byte(0x0100, 0x3e);     // MVI A,$0F
+//! c.bus.write_byte(0x0101, 0x0F);
+//! c.bus.write_byte(0x0102, 0x3d);     // DCR A
+//! c.bus.write_byte(0x0103, 0xc2);     // JNZ $0102
+//! c.bus.write_word(0x0104, 0x0102);
+//! c.bus.write_byte(0x0106, 0xc9);     // RET
+//! loop {
+//!     c.execute();
+//!     if c.pc == 0x0000 { break }
+//! }
+//! ```
+//! 
+//! You can also load programs from disk to memory:
+//! ```rust
+//! use intel8080::CPU;
+//! let mut c = CPU::new();
+//! c.bus.load_bin("bin/helloworld.bin", 0x100).unwrap();
+//! ```
+
+
+pub mod register;
+pub mod flags;
+pub mod memory;
+pub mod bit;
 
 use crate::register::Registers;
 use crate::memory::AddressBus;
@@ -17,6 +43,7 @@ pub struct CPU {
 }
 
 impl CPU {
+    /// Creates a new CPU instance and its 16 bits address bus.
     pub fn new() -> CPU {
         CPU {
             registers: Registers::new(),
@@ -236,7 +263,7 @@ impl CPU {
         self.sp += 2;
     }
 
-    // fetches and executes instruction from (pc)
+    /// Fetches and executes one instruction from (pc)
     pub fn execute(&mut self) {
         if self.halt { return };
         let opcode = self.bus.read_byte(self.pc);

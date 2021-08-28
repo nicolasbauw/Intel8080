@@ -4,6 +4,7 @@ pub struct AddressBus {
     ram: Vec<u8>
 }
 
+/// The AddressBus struct is hosting the 8080 memory map. So far it's a 64 KByte RAM space.
 impl AddressBus {
     pub fn new() -> AddressBus {
         AddressBus {
@@ -11,24 +12,28 @@ impl AddressBus {
         }
     }
 
+    /// Reads a byte from memory
     pub fn read_byte(&self, address: u16) -> u8 {
         self.ram[usize::from(address)]
     }
 
+    /// Writes a byte to memory
     pub fn write_byte(&mut self, address: u16, data: u8) {
         self.ram[usize::from(address)] = data;
     }
 
+    /// Reads a word stored in memory in little endian byte order
     pub fn read_word(&self, address: u16) -> u16 {
         u16::from(self.ram[usize::from(address)]) | (u16::from(self.ram[usize::from(address + 1)]) << 8)
     }
 
+    /// Writes a word to memory in little endian byte order
     pub fn write_word(&mut self, address: u16, data: u16) {
         self.ram[usize::from(address)] = (data & 0xFF) as u8;
         self.ram[usize::from(address + 1)] = (data >> 8) as u8;
     }
 
-    // Loads binary data into memory at $0000 + offset
+    /// Loads binary data from disk into memory at $0000 + offset
     pub fn load_bin(&mut self, file: &str, org: u16) -> Result<(), std::io::Error> {
         let mut f = File::open(file)?;
         let mut buf = Vec::new();
