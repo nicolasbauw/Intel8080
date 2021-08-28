@@ -16,11 +16,11 @@
 //! }
 //! ```
 //! 
-//! You can also load programs from disk to memory:
+//! You can also load assembled programs from disk to memory:
 //! ```rust
 //! use intel8080::CPU;
 //! let mut c = CPU::new();
-//! c.bus.load_bin("bin/helloworld.bin", 0x100).unwrap();
+//! c.bus.load_bin("bin/helloworld.bin", 0x100).unwrap();   // loads file at address $100
 //! ```
 
 
