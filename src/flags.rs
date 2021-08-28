@@ -1,3 +1,4 @@
+/// This struct contains the CPU condition bits.
 pub struct Flags {
     pub s: bool,                // sign             : bit 7
     pub z: bool,                // zero             : bit 6
@@ -17,6 +18,7 @@ impl Flags {
         }
     }
 
+    /// Converts condition bits to a byte.
     pub fn as_byte(&self) -> u8 {
         let s = if self.s { 1 << 7 } else { 0 };
         let z = if self.z { 1 << 6 } else { 0 };
@@ -26,6 +28,7 @@ impl Flags {
         s | z | a | p | c | 2
     }
 
+    /// Retrieves condition bits from a byte.
     pub fn from_byte(&mut self, bflags: u8) {
         self.s = (bflags & 0x80) != 0;
         self.z = (bflags & 0x40) != 0;
