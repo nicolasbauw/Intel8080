@@ -18,10 +18,25 @@
 //! 
 //! You can also load assembled programs from disk to memory:
 //! ```rust
-//! use intel8080::CPU;
-//! let mut c = CPU::new();
+//! # use intel8080::CPU;
+//! # let mut c = CPU::new();
 //! c.bus.load_bin("bin/helloworld.bin", 0x100).unwrap();   // loads file at address $100
 //! ```
+//! 
+//! Includes a "cpmloader" which loads and executes basic CP/M programs:
+//! 
+//! ```text
+//! cargo run --release --example cpmloader -- bin/helloworld.bin
+//! ```
+//! 
+//! The provided example source code helloworld.asm can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
+//! The assembled version is in the bin/ directory.
+//! 
+//! TODO:
+//! - pass the other tests
+//! - interrupts
+//! - in / out
+//! - clock
 
 
 pub mod register;
