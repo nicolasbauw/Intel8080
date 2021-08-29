@@ -12,7 +12,7 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
     let  a: Vec<String> = env::args().collect();
     let mut c = CPU::new();
     // Loads assembled program into memory
-    c.bus.load_bin(&a[1], 0x100).unwrap();
+    c.bus.load_bin(&a[1], 0x100)?;
     
     // RET at 0x05 for mocking of CP/M BDOS system calls
     c.bus.write_word(0x0005, 0xc9);
@@ -20,8 +20,8 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
     // Setting PC to 0x0100 (CP/M Binaries are loaded with a 256 byte offset)
     c.pc = 0x0100;
 
-    /* Setting up stack : by reverse engineering assembled CP/M software, it seems
-    that the $0006 address is read to set the stack */
+    /* Setting up stack : by disassembling CP/M software, it seems
+    that the $0006 address is read to set the stack by some programs */
     c.bus.write_word(0x0006, 0xFF00);
     
     /* Setting up stack in case of the program does not read the $0006 address
