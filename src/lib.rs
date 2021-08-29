@@ -1012,29 +1012,125 @@ mod instructions {
     fn cmc() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3f);
+        c.bus.write_byte(0x0001, 0x3f);
         c.execute();
         assert_eq!(true, c.flags.c);
+        assert_eq!(c.pc, 0x0001);
+        c.execute();
+        assert_eq!(false, c.flags.c);
+        assert_eq!(c.pc, 0x0002);
     }
 
     #[test]
     fn stc() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x37);
+        c.bus.write_byte(0x0001, 0x37);
         c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(true, c.flags.c);
+        c.execute();
+        assert_eq!(c.pc, 0x0002);
         assert_eq!(true, c.flags.c);
     }
 
     #[test]
-    fn inr() {
+    fn inrb() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x04);
+        c.registers.b = 0xff;
         c.execute();
-        assert_eq!(1, c.registers.b);
-        // TODO : test flags
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.b);
+        assert_eq!(true, c.flags.z);
     }
 
     #[test]
-    fn dcr() {
+    fn inrc() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x0C);
+        c.registers.c = 0xff;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.c);
+        assert_eq!(true, c.flags.z);
+    }
+
+    #[test]
+    fn inrd() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x14);
+        c.registers.d = 0xff;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.d);
+        assert_eq!(true, c.flags.z);
+    }
+
+    #[test]
+    fn inre() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x1C);
+        c.registers.e = 0xff;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.e);
+        assert_eq!(true, c.flags.z);
+    }
+
+    #[test]
+    fn inrh() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x24);
+        c.registers.h = 0xff;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.h);
+        assert_eq!(true, c.flags.z);
+    }
+
+    #[test]
+    fn inrl() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x2C);
+        c.registers.l = 0xff;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.registers.l);
+        assert_eq!(true, c.flags.z);
+    }
+
+    #[test]
+    fn inrm() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x34);
+        c.bus.write_byte(0x0001, 0x34);
+        c.bus.write_byte(0x100, 0xff);
+        c.registers.set_hl(0x100);
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0, c.bus.read_byte(0x100));
+        assert_eq!(true, c.flags.z);
+        c.execute();
+        assert_eq!(c.pc, 0x0002);
+        assert_eq!(1, c.bus.read_byte(0x100));
+        assert_eq!(false, c.flags.z);
+    }
+
+    #[test]
+    fn inra() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x3C);
+        c.registers.a = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(0x10, c.registers.a);
+        assert_eq!(false, c.flags.z);
+        assert_eq!(true, c.flags.a);
+    }
+
+    #[test]
+    fn dcrb() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x05);
         c.execute();
