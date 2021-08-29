@@ -1133,9 +1133,15 @@ mod instructions {
     fn dcrb() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x05);
+        c.bus.write_byte(0x0001, 0x05);
+        c.registers.b = 0x01;
         c.execute();
-        assert_eq!(255, c.registers.b);
-        // TODO : test flags
+        assert_eq!(0, c.registers.b);
+        assert_eq!(true, c.flags.z);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(0xff, c.registers.b);
+        assert_eq!(false, c.flags.z);
     }
 
     #[test]
