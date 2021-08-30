@@ -976,6 +976,42 @@ impl CPU {
             // DI Disable Interrupts
             0xF3 => {},
 
+            /* RST (Restart) instructions */
+            0xC7 => {                                                       // RST 0
+                self.subroutine_stack_push();
+                self.pc = 0x0000;
+            },
+
+            0xCF => {                                                       // RST 1
+                self.subroutine_stack_push();
+                self.pc = 0x0008;
+            },
+
+            0xD7 => {                                                       // RST 2
+                self.subroutine_stack_push();
+                self.pc = 0x0010;
+            },
+
+            0xDF => {                                                       // RST 3
+                self.subroutine_stack_push();
+                self.pc = 0x0018;
+            },
+
+            0xE7 => {                                                       // RST 4
+                self.subroutine_stack_push();
+                self.pc = 0x0020;
+            },
+
+            0xEF => {                                                       // RST 5
+                self.subroutine_stack_push();
+                self.pc = 0x0028;
+            },
+
+            0xF7 => {                                                       // RST 6
+                self.subroutine_stack_push();
+                self.pc = 0x0030;
+            },
+
             /* Input / output instructions */
             // IN Input
             0xDB => {},
