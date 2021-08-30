@@ -54,7 +54,9 @@ pub struct CPU {
     pub pc: u16,
     pub sp: u16,
     pub bus: AddressBus,
-    pub halt: bool
+    pub halt: bool,
+    pub int: bool,
+    inte: bool
 }
 
 impl CPU {
@@ -66,7 +68,9 @@ impl CPU {
             pc: 0,
             sp: 0,
             bus: AddressBus::new(),
-            halt: false
+            halt: false,
+            int: false,
+            inte: true
         }
     }
 
@@ -972,9 +976,9 @@ impl CPU {
 
             /* Interrupt flip-flop instructions */
             // EI Enable interrupts
-            0xFB => {},
+            0xFB => self.inte = true,
             // DI Disable Interrupts
-            0xF3 => {},
+            0xF3 => self.inte = false,
 
             /* RST (Restart) instructions */
             0xC7 => {                                                       // RST 0
