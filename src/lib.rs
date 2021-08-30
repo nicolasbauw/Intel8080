@@ -1012,6 +1012,11 @@ impl CPU {
                 self.pc = 0x0030;
             },
 
+            0xFF => {                                                       // RST 7
+                self.subroutine_stack_push();
+                self.pc = 0x0038;
+            },
+
             /* Input / output instructions */
             // IN Input
             0xDB => {},
