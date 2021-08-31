@@ -1,14 +1,16 @@
 use std::{fs::File, io::prelude::*,};
 
 pub struct AddressBus {
-    ram: Vec<u8>
+    ram: Vec<u8>,
+    io: Vec<u8>
 }
 
 /// The AddressBus struct is hosting the 8080 memory map. So far it's a 64 KByte RAM space.
 impl AddressBus {
     pub fn new() -> AddressBus {
         AddressBus {
-            ram: vec![0; 0xFFFF]
+            ram: vec![0; 0xFFFF],
+            io: vec![0; 0xFF]
         }
     }
 
@@ -40,6 +42,16 @@ impl AddressBus {
         f.read_to_end(&mut buf)?;
         self.ram[org as usize..(buf.len() + org as usize)].clone_from_slice(&buf[..]);
         Ok(())
+    }
+
+    // Reads a byte from device number
+    pub fn io_read(&self, device: u8) -> u8 {
+        self.io[usize::from(device)]
+    }
+
+    // Writes a byte to device number
+    pub fn io_write(&mut self, device: u8, data: u8) {
+        self.io[usize::from(device)] = data;
     }
 }
 

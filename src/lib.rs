@@ -1023,9 +1023,15 @@ impl CPU {
 
             /* Input / output instructions */
             // IN Input
-            0xDB => {},
+            0xDB => {
+                let device = self.bus.read_byte(self.pc+1);
+                self.registers.a = self.bus.io_read(device);
+            }
             // OUT Output
-            0xD3 => {},
+            0xD3 => {
+                let device = self.bus.read_byte(self.pc+1);
+                self.bus.io_write(device, self.registers.a);
+            },
 
             _ => {}
         }
