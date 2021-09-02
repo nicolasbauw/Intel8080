@@ -38,10 +38,12 @@
 //! - in / out
 //! - clock
 
-
+#[doc(hidden)]
 pub mod register;
+#[doc(hidden)]
 pub mod flags;
 pub mod memory;
+#[doc(hidden)]
 pub mod bit;
 
 use crate::register::Registers;
