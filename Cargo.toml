@@ -1,6 +1,6 @@
 [package]
 name = "intel8080"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2018"
 authors = ["Nicolas BAUW <nbauw@hotmail.com>"]
 description = "Yet another Intel 8080 Emulator."
