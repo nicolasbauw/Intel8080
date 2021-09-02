@@ -1,5 +1,6 @@
 use std::{fs::File, io::prelude::*,};
 
+/// The AddressBus struct is hosting the 8080 memory map and the pending IO operations for outer handling.
 pub struct AddressBus {
     ram: Vec<u8>,
     pending_io : PendingIO,
@@ -13,13 +14,13 @@ pub enum IO {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// The last requested IO.
 pub struct PendingIO {
     pub kind: IO,
     pub device: u8,
     pub value: u8,
 }
 
-/// The AddressBus struct is hosting the 8080 memory map. So far it's a 64 KByte RAM space.
 impl AddressBus {
     pub fn new() -> AddressBus {
         AddressBus {
