@@ -2,7 +2,21 @@ use std::{fs::File, io::prelude::*,};
 
 pub struct AddressBus {
     ram: Vec<u8>,
-    io: Vec<u8>
+    pending_io : PendingIO,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum IO {
+    IN,
+    OUT,
+    CLR,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct PendingIO {
+    pub kind: IO,
+    pub device: u8,
+    pub value: u8,
 }
 
 /// The AddressBus struct is hosting the 8080 memory map. So far it's a 64 KByte RAM space.
@@ -10,7 +24,11 @@ impl AddressBus {
     pub fn new() -> AddressBus {
         AddressBus {
             ram: vec![0; 0xFFFF],
-            io: vec![0; 0xFF]
+            pending_io: PendingIO{
+                kind: IO::CLR,
+                device: 0,
+                value: 0,
+            }
         }
     }
 
@@ -44,14 +62,23 @@ impl AddressBus {
         Ok(())
     }
 
-    // Reads a byte from device number
-    pub fn io_read(&self, device: u8) -> u8 {
-        self.io[usize::from(device)]
+    /// Gets the pending IO operation
+    pub fn get_io(&self) -> PendingIO {
+        self.pending_io.clone()
     }
 
-    // Writes a byte to device number
-    pub fn io_write(&mut self, device: u8, data: u8) {
-        self.io[usize::from(device)] = data;
+    /// Sets next IO operation
+    pub fn set_io(&mut self, device: u8, value: u8) {
+        self.pending_io.kind = IO::OUT;
+        self.pending_io.device = device;
+        self.pending_io.value = value;
+    }
+
+    /// When done with IO handling, you can clear the pending operation in your own program
+    pub fn clear_io(&mut self,) {
+        self.pending_io.kind = IO::CLR;
+        self.pending_io.device = 0;
+        self.pending_io.value = 0;
     }
 }
 
