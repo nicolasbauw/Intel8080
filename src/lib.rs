@@ -45,7 +45,7 @@ pub mod memory;
 pub mod bit;
 
 use crate::register::Registers;
-use crate::memory::AddressBus;
+use crate::memory::{AddressBus, IO};
 use crate::flags::Flags;
 
 pub struct CPU {
@@ -1025,12 +1025,16 @@ impl CPU {
             // IN Input
             0xDB => {
                 let device = self.bus.read_byte(self.pc+1);
-                self.registers.a = self.bus.io_read(device);
+                let io = self.bus.get_io();
+                if io.kind == IO::IN && device == io.device {
+                    self.registers.a = io.value
+                }
             }
+                
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
-                self.bus.io_write(device, self.registers.a);
+                self.bus.set_io(device, self.registers.a);
             },
 
             _ => {}
