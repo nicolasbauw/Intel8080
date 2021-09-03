@@ -69,6 +69,24 @@ impl AddressBus {
     }
 
     /// Gets the pending IO operation
+    /// ```rust
+    /// # use intel8080::{CPU, memory::*};
+    /// let mut c = CPU::new();
+    /// c.bus.write_byte(0x0100, 0x3e);     // MVI A,$55
+    /// c.bus.write_byte(0x0101, 0x55);
+    /// c.bus.write_byte(0x0102, 0xd3);     // OUT 0
+    /// c.bus.write_byte(0x0103, 0x00);
+    /// loop {
+    ///    c.execute();
+    ///     let io = c.bus.get_io();
+    ///     // you want this part of your code to handle output from CPU to device 0
+    ///     if io.kind == IO::OUT && io.device == 0 {
+    ///         /* handle your IO then clear pending IO */
+    ///         c.bus.clear_io();
+    ///         break;
+    ///     }
+    /// }
+    /// ```
     pub fn get_io(&self) -> PendingIO {
         self.pending_io.clone()
     }
@@ -79,7 +97,7 @@ impl AddressBus {
     /// let mut c = CPU::new();
     /// c.bus.write_byte(0x0000, 0xdb);     // IN 0
     /// c.bus.write_byte(0x0001, 0x00);
-    /// c.bus.set_io(IO::IN, 0, 0x55);      // puts 0x55 on "data bus" for device 0
+    /// c.bus.set_io(IO::IN, 0, 0x55);      // device 0 puts 0x55 on "data bus" (output for peripheral, input for the CPU, hence the IO::IN)
     /// c.execute();                        // the CPU executes the IN instruction, so accumulator equals input data 0x55
     /// assert_eq!(c.registers.a, 0x55);
     pub fn set_io(&mut self, kind: IO, device: u8, value: u8) {
