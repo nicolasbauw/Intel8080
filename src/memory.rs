@@ -88,6 +88,8 @@ impl AddressBus {
     ///     }
     /// }
     /// ```
+    /// IMPORTANT : after a OUT instruction execution, once you have handled the data,
+    /// you must call clear_io in your own code.
     pub fn get_io(&self) -> PendingIO {
         self.pending_io.clone()
     }
@@ -101,6 +103,8 @@ impl AddressBus {
     /// c.bus.set_io(IO::IN, 0, 0x55);      // device 0 puts 0x55 on "data bus" (output for peripheral, input for the CPU, hence the IO::IN)
     /// c.execute();                        // the CPU executes the IN instruction, so accumulator equals input data 0x55
     /// assert_eq!(c.registers.a, 0x55);
+    /// ```
+    /// IMPORTANT : after a IN instruction execution, a clear_io is done automatically.
     pub fn set_io(&mut self, kind: IO, device: u8, value: u8) {
         self.pending_io.kind = kind;
         self.pending_io.device = device;
