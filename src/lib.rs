@@ -1030,6 +1030,7 @@ impl CPU {
                 if io.kind == IO::IN && device == io.device {
                     self.registers.a = io.value
                 }
+                self.bus.clear_io();
             }
                 
             // OUT Output
