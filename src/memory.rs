@@ -18,7 +18,8 @@ pub enum IO {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-/// The last requested IO on IO bus
+/// The last requested IO on IO bus. The interface between the emulator, its IO bus and your own code are
+/// the get_io, set_io and clear_io functions owned by the AddressBus struct.
 pub struct PendingIO {
     pub kind: IO,
     pub device: u8,
@@ -73,13 +74,21 @@ impl AddressBus {
     }
 
     /// Sets next IO operation
+    /// ```rust
+    /// # use intel8080::{CPU, memory::*};
+    /// let mut c = CPU::new();
+    /// c.bus.write_byte(0x0000, 0xdb);     // IN 0
+    /// c.bus.write_byte(0x0001, 0x00);
+    /// c.bus.set_io(IO::IN, 0, 0x55);      // puts 0x55 on "data bus" for device 0
+    /// c.execute();                        // the CPU executes the IN instruction, so accumulator equals input data 0x55
+    /// assert_eq!(c.registers.a, 0x55);
     pub fn set_io(&mut self, kind: IO, device: u8, value: u8) {
         self.pending_io.kind = kind;
         self.pending_io.device = device;
         self.pending_io.value = value;
     }
 
-    /// When done with IO handling, you can clear the pending operation in your own program
+    /// When done with IO handling, you can (must) clear the pending operation in your own code
     pub fn clear_io(&mut self,) {
         self.pending_io.kind = IO::CLR;
         self.pending_io.device = 0;
