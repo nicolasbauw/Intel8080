@@ -29,7 +29,7 @@
 //! let mut c = CPU::new();
 //! c.bus.write_byte(0x0100, 0x3e);     // MVI A,$55
 //! c.bus.write_byte(0x0101, 0x55);
-//! c.bus.write_byte(0x0102, 0xd3);     // OUT 0x00
+//! c.bus.write_byte(0x0102, 0xd3);     // OUT 0
 //! c.bus.write_byte(0x0103, 0x00);
 //! loop {
 //!     c.execute();
