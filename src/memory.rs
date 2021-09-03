@@ -27,6 +27,7 @@ pub struct PendingIO {
 }
 
 impl AddressBus {
+    #[doc(hidden)]
     pub fn new() -> AddressBus {
         AddressBus {
             ram: vec![0; 0xFFFF],
@@ -106,7 +107,12 @@ impl AddressBus {
         self.pending_io.value = value;
     }
 
-    /// When done with IO handling, you can (must) clear the pending operation in your own code
+    /// When done with IO handling, you should clear the pending operation in your own code
+    /// ```rust
+    /// # use intel8080::{CPU, memory::*};
+    /// # let mut c = CPU::new();
+    /// c.bus.clear_io();
+    /// ```
     pub fn clear_io(&mut self,) {
         self.pending_io.kind = IO::CLR;
         self.pending_io.device = 0;
