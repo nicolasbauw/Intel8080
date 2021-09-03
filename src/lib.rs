@@ -1054,7 +1054,7 @@ impl CPU {
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
-                self.bus.set_io(device, self.registers.a);
+                self.bus.set_io(IO::OUT, device, self.registers.a);
             },
 
             _ => {}

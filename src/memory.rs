@@ -7,14 +7,18 @@ pub struct AddressBus {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+/// Is the requested IO an input, output, or no IO requested ?
 pub enum IO {
+    /// IN : from peripherals to the CPU
     IN,
+    /// OUT : from CPU to peripherals
     OUT,
+    /// CLR : No I/O requested on IO bus
     CLR,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-/// The last requested IO.
+/// The last requested IO on IO bus
 pub struct PendingIO {
     pub kind: IO,
     pub device: u8,
@@ -69,8 +73,8 @@ impl AddressBus {
     }
 
     /// Sets next IO operation
-    pub fn set_io(&mut self, device: u8, value: u8) {
-        self.pending_io.kind = IO::OUT;
+    pub fn set_io(&mut self, kind: IO, device: u8, value: u8) {
+        self.pending_io.kind = kind;
         self.pending_io.device = device;
         self.pending_io.value = value;
     }
