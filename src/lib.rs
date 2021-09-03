@@ -22,25 +22,6 @@
 //! # let mut c = CPU::new();
 //! c.bus.load_bin("bin/helloworld.bin", 0x100).unwrap();   // loads file at address $100
 //! ```
-//! 
-//! Example for IO handling:
-//! ```rust
-//! use intel8080::{CPU, memory::*};
-//! let mut c = CPU::new();
-//! c.bus.write_byte(0x0100, 0x3e);     // MVI A,$55
-//! c.bus.write_byte(0x0101, 0x55);
-//! c.bus.write_byte(0x0102, 0xd3);     // OUT 0
-//! c.bus.write_byte(0x0103, 0x00);
-//! loop {
-//!     c.execute();
-//!     let io = c.bus.get_io();
-//!     if io.kind == IO::OUT && io.device == 0 {
-//!         /* handle your IO then clear pending IO */
-//!         c.bus.clear_io();
-//!         break;
-//!     }
-//! }
-//! ```
 //!  
 //! Includes a "cpmloader" which loads and executes basic CP/M programs:
 //! 
