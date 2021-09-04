@@ -4,6 +4,9 @@
 //! ```rust
 //! use intel8080::CPU;
 //! let mut c = CPU::new();
+//! c.pc = 0x0100;                      // sets pc to $100
+//! // Here we create a small machine code program for demo purpose.
+//! // Usually you will rather load an assembled code in memory (see below).
 //! c.bus.write_byte(0x0100, 0x3e);     // MVI A,$0F
 //! c.bus.write_byte(0x0101, 0x0F);
 //! c.bus.write_byte(0x0102, 0x3d);     // DCR A
@@ -16,7 +19,7 @@
 //! }
 //! ```
 //! 
-//! You can also load assembled programs from disk to memory:
+//! You can load assembled programs from disk to memory:
 //! ```rust
 //! # use intel8080::CPU;
 //! # let mut c = CPU::new();
