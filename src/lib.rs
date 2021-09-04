@@ -34,12 +34,12 @@
 //! ```rust
 //! # use intel8080::CPU;
 //! # let mut c = CPU::new();
-//! c.bus.load_bin("examples/interrupt.bin", 0).unwrap();
-//! c.inte = false;
-//! c.int = (true, 0xcf);
+//! c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
+//! c.inte = false;                     // we start with interrupts disabled, for testing
+//! c.int = (true, 0xcf);               // we create an interrupt request
 //! loop {
-//!     c.execute();
-//!     if c.pc == 0x0000 { break }
+//!     c.execute();                    // test program is made to never leave the loop
+//!     if c.pc == 0x0000 { break }     // if it does not execute intterupt routine
 //! }
 //! ``` 
 //! 
@@ -303,6 +303,12 @@ impl CPU {
     fn subroutine_stack_pop(&mut self) {
         self.pc = self.bus.read_word(self.sp);
         self.sp += 2;
+    }
+
+    // interrupt stack push
+    fn interrupt_stack_push(&mut self) {
+        self.bus.write_word((self.sp) -2 , self.pc);
+        self.sp = self.sp - 2;
     }
 
     /// Fetches and executes one instruction from (pc)
@@ -1020,42 +1026,42 @@ impl CPU {
 
             /* RST (Restart) instructions */
             0xC7 => {                                                       // RST 0
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0000;
             },
 
             0xCF => {                                                       // RST 1
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0008;
             },
 
             0xD7 => {                                                       // RST 2
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0010;
             },
 
             0xDF => {                                                       // RST 3
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0018;
             },
 
             0xE7 => {                                                       // RST 4
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0020;
             },
 
             0xEF => {                                                       // RST 5
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0028;
             },
 
             0xF7 => {                                                       // RST 6
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0030;
             },
 
             0xFF => {                                                       // RST 7
-                self.subroutine_stack_push();
+                self.interrupt_stack_push();
                 self.pc = 0x0038;
             },
 
