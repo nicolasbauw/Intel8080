@@ -31,23 +31,21 @@ loop {
 }
 ```
 
-Includes a "cpmloader" which loads and executes basic CP/M programs (and every pure 8080 program):
+It's easy to create an interrupt request:
+```rust
+c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
+c.inte = false;                     // we start with interrupts disabled, for testing
+c.int = (true, 0xcf);               // we create an interrupt request : flag set to true
+loop {                              // with its assiociated RST command
+    c.execute();                    // test program is designed to never leave the loop
+    if c.pc == 0x0000 { break }     // if it does not execute interrupt routine
+}
+```
+
+Includes a "cpmloader" which loads and executes basic CP/M programs:
 
 ```
 cargo run --release --example cpmloader -- bin/helloworld.bin
-```
-
-It can be used for debugging:
-
-```
-cargo run --example cpmloader -- bin/loop.bin > /tmp/test.txt
-````
-
-```text
-opcode : 0x3e	PC : 0x0102	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
-B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00	A : 0x0f
------------------------------------------------------------------------------------------------------
-...
 ```
 
 The provided source code examples can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
@@ -55,7 +53,6 @@ The assembled versions are in the bin/ directory.
 
 TODO:
 - pass the other tests
-- interrupts (WIP)
 - clock
 
 License: MIT

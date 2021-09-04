@@ -31,15 +31,16 @@
 //! }
 //! ```
 //! 
+//! It's easy to create an interrupt request:
 //! ```rust
 //! # use intel8080::CPU;
 //! # let mut c = CPU::new();
 //! c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
 //! c.inte = false;                     // we start with interrupts disabled, for testing
-//! c.int = (true, 0xcf);               // we create an interrupt request
-//! loop {
-//!     c.execute();                    // test program is made to never leave the loop
-//!     if c.pc == 0x0000 { break }     // if it does not execute intterupt routine
+//! c.int = (true, 0xcf);               // we create an interrupt request : flag set to true
+//! loop {                              // with its assiociated RST command
+//!     c.execute();                    // test program is designed to never leave the loop
+//!     if c.pc == 0x0000 { break }     // if it does not execute interrupt routine
 //! }
 //! ``` 
 //! 
@@ -54,7 +55,6 @@
 //! 
 //! TODO:
 //! - pass the other tests
-//! - interrupts (WIP)
 //! - clock
 
 #[doc(hidden)]
@@ -76,9 +76,9 @@ pub struct CPU {
     pub sp: u16,
     pub bus: AddressBus,
     pub halt: bool,
-    /// Interrupt request
+    /// Interrupt request : true / false, instruction to execute (normally a RST command)
     pub int: (bool, u8),
-    /// Interrupt enable
+    /// Interrupt enable bit
     pub inte: bool
 }
 
