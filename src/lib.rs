@@ -77,7 +77,8 @@ pub struct CPU {
     pub sp: u16,
     pub bus: AddressBus,
     pub halt: bool,
-    pub int: bool,
+    /// Is there an interruption ? What's the instruction supplied by the interrupting device ?
+    pub int: (bool, u8),
     inte: bool
 }
 
@@ -91,7 +92,7 @@ impl CPU {
             sp: 0,
             bus: AddressBus::new(),
             halt: false,
-            int: false,
+            int: (false, 0),
             inte: true
         }
     }
@@ -307,7 +308,19 @@ impl CPU {
     /// Fetches and executes one instruction from (pc)
     pub fn execute(&mut self) {
         if self.halt { return };
-        let opcode = self.bus.read_byte(self.pc);
+
+        let opcode = match self.inte {
+            false => self.bus.read_byte(self.pc),
+            // interrupts enabled : is there a pending interrupt ?
+            true => match self.int.0 {
+                false => self.bus.read_byte(self.pc),
+                true => self.int.1,
+            }
+        };
+        
+        // interrupts enable and pending interrupt : we disable interrupts
+        if self.inte && self.int.0 { self.inte = false }
+
         match opcode {
             /* Carry bit instructions */
             0x3f => self.flags.c = !self.flags.c,                           // CMC
