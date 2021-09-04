@@ -30,24 +30,22 @@
 //!     if c.pc == 0x0000 { break }
 //! }
 //! ```
-//!  
-//! Includes a "cpmloader" which loads and executes basic CP/M programs (and every pure 8080 program):
+//! 
+//! ```rust
+//! # use intel8080::CPU;
+//! # let mut c = CPU::new();
+//! c.bus.load_bin("examples/interrupt.bin", 0).unwrap();
+//! c.int = (true, 0xcf);
+//! loop {
+//!     c.execute();
+//!     if c.pc == 0x0000 { break }
+//! }
+//! ``` 
+//! 
+//! Includes a "cpmloader" which loads and executes basic CP/M programs:
 //! 
 //! ```text
 //! cargo run --release --example cpmloader -- bin/helloworld.bin
-//! ```
-//! 
-//! It can be used for debugging:
-//! 
-//! ```text
-//! cargo run --example cpmloader -- bin/loop.bin > /tmp/test.txt
-//! ````
-//!
-//! ```text
-//! opcode : 0x3e	PC : 0x0102	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
-//! B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00	A : 0x0f
-//! -----------------------------------------------------------------------------------------------------
-//! ...
 //! ```
 //! 
 //! The provided source code examples can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
@@ -77,7 +75,6 @@ pub struct CPU {
     pub sp: u16,
     pub bus: AddressBus,
     pub halt: bool,
-    /// Is there an interruption ? What's the instruction supplied by the interrupting device ?
     pub int: (bool, u8),
     inte: bool
 }
@@ -318,8 +315,11 @@ impl CPU {
             }
         };
         
-        // interrupts enable and pending interrupt : we disable interrupts
-        if self.inte && self.int.0 { self.inte = false }
+        // interrupts enable and pending interrupt : we disable interrupts and clear interrupt request
+        if self.inte && self.int.0 {
+            self.inte = false;
+            self.int = (false, 0);
+        }
 
         match opcode {
             /* Carry bit instructions */
