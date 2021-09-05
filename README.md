@@ -34,11 +34,11 @@ loop {
 It's easy to create an interrupt request:
 ```rust
 c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
-c.inte = false;                     // we start with interrupts disabled, for testing
+c.inte = false;                     // we start with interrupts disabled, for the test
 c.int = (true, 0xcf);               // we create an interrupt request : flag set to true
-loop {                              // with its assiociated RST command
-    c.execute();                    // test program is designed to never leave the loop
-    if c.pc == 0x0000 { break }     // if it does not execute interrupt routine
+loop {                              // and its associated RST command
+    c.execute();                    // test program is designed to never leave a loop
+    if c.pc == 0x0000 { break }     // if it does not execute the interrupt routine
 }
 ```
 
