@@ -1,5 +1,9 @@
 # intel8080
 
+[![Current Crates.io Version](https://img.shields.io/crates/v/intel8080.svg)](https://crates.io/crates/intel8080)
+[![Current docs Version](https://docs.rs/intel8080/badge.svg)](https://docs.rs/intel8080)
+[![Downloads badge](https://img.shields.io/crates/d/intel8080.svg)](https://crates.io/crates/intel8080)
+
 Yet another Intel 8080 Emulator. It passes the TST8080 and 8080PRE tests.
 
 Example for a small loop:
