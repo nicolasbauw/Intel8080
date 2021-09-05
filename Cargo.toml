@@ -9,7 +9,7 @@ categories = ["emulators"]
 license = "MIT"
 repository = "https://github.com/nicolasbauw/Intel8080"
 readme = "README.md"
-exclude = ["/bin", "/examples"]
+exclude = ["/bin"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

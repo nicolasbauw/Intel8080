@@ -49,10 +49,6 @@ cargo run --release --example cpmloader -- bin/helloworld.bin
 ```
 
 The provided source code examples can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
-The assembled versions are in the bin/ directory.
 
-TODO:
-- pass the other tests
-- clock
 
 License: MIT
