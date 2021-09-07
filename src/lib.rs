@@ -75,7 +75,8 @@ pub struct CPU {
     /// Interrupt request : true / false, instruction to execute (normally a RST command)
     pub int: (bool, u8),
     /// Interrupt enable bit
-    pub inte: bool
+    pub inte: bool,
+    pub debug: bool
 }
 
 impl CPU {
@@ -89,7 +90,8 @@ impl CPU {
             bus: AddressBus::new(),
             halt: false,
             int: (false, 0),
-            inte: true
+            inte: true,
+            debug: false
         }
     }
 
@@ -1092,7 +1094,7 @@ impl CPU {
             _ => self.pc +=1,
         }
 
-        #[cfg(debug_assertions)]
+        if self.debug
         {
             println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", opcode, self.pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
             println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a);
@@ -1105,6 +1107,53 @@ impl CPU {
 #[cfg(test)]
 mod instructions {
     use super::*;
+    #[test]
+    fn lxi_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x01);
+        c.bus.write_byte(0x0001, 0x12);
+        c.bus.write_byte(0x0002, 0x34);
+        c.execute();
+        assert_eq!(c.pc, 0x0003);
+        assert_eq!(c.registers.b, 0x34);
+        assert_eq!(c.registers.c, 0x12);
+    }
+
+    #[test]
+    fn lxi_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x11);
+        c.bus.write_byte(0x0001, 0x12);
+        c.bus.write_byte(0x0002, 0x34);
+        c.execute();
+        assert_eq!(c.pc, 0x0003);
+        assert_eq!(c.registers.d, 0x34);
+        assert_eq!(c.registers.e, 0x12);
+    }
+
+    #[test]
+    fn lxi_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x21);
+        c.bus.write_byte(0x0001, 0x12);
+        c.bus.write_byte(0x0002, 0x34);
+        c.execute();
+        assert_eq!(c.pc, 0x0003);
+        assert_eq!(c.registers.h, 0x34);
+        assert_eq!(c.registers.l, 0x12);
+    }
+
+    #[test]
+    fn lxi_sp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x31);
+        c.bus.write_byte(0x0001, 0x12);
+        c.bus.write_byte(0x0002, 0x34);
+        c.execute();
+        assert_eq!(c.pc, 0x0003);
+        assert_eq!(c.sp, 0x3412);
+    }
+
     #[test]
     fn cmc() {
         let mut c = CPU::new();
