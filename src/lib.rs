@@ -1155,6 +1155,26 @@ mod instructions {
     }
 
     #[test]
+    fn stax_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x02);
+        c.registers.a = 0x49;
+        c.registers.set_bc(0x1234);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x1234), 0x49);
+    }
+
+    #[test]
+    fn stax_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x12);
+        c.registers.a = 0x49;
+        c.registers.set_de(0x1234);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x1234), 0x49);
+    }
+
+    #[test]
     fn cmc() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3f);
