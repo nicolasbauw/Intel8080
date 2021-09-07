@@ -1161,6 +1161,7 @@ mod instructions {
         c.registers.a = 0x49;
         c.registers.set_bc(0x1234);
         c.execute();
+        assert_eq!(c.pc, 0x0001);
         assert_eq!(c.bus.read_byte(0x1234), 0x49);
     }
 
@@ -1171,7 +1172,49 @@ mod instructions {
         c.registers.a = 0x49;
         c.registers.set_de(0x1234);
         c.execute();
+        assert_eq!(c.pc, 0x0001);
         assert_eq!(c.bus.read_byte(0x1234), 0x49);
+    }
+
+    #[test]
+    fn inx_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x03);
+        c.registers.set_bc(0x1234);
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(c.registers.get_bc(), 0x1235);
+    }
+
+    #[test]
+    fn inx_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x13);
+        c.registers.set_de(0x1234);
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(c.registers.get_de(), 0x1235);
+    }
+
+    #[test]
+    fn inx_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x23);
+        c.registers.a = 0x49;
+        c.registers.set_hl(0x1234);
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(c.registers.get_hl(), 0x1235);
+    }
+
+    #[test]
+    fn inx_sp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x33);
+        c.sp = 0x0049;
+        c.execute();
+        assert_eq!(c.pc, 0x0001);
+        assert_eq!(c.sp, 0x0050);
     }
 
     #[test]
