@@ -715,7 +715,7 @@ impl CPU {
                 self.registers.set_hl(h);
             }
 
-            0x33 => self.sp = self.sp.wrapping_add(1),                      // INX SP
+            0x33 => self.sp = self.sp.wrapping_add(1),                      // INX SP             
 
             // DCX Decrement register pair
             0x0B => {                                                       // DCX B
@@ -1214,7 +1214,7 @@ mod instructions {
         c.sp = 0x0049;
         c.execute();
         assert_eq!(c.pc, 0x0001);
-        assert_eq!(c.sp, 0x0050);
+        assert_eq!(c.sp, 0x004A);
     }
 
     #[test]
@@ -1566,15 +1566,6 @@ mod instructions {
         assert_eq!(c.registers.h, 0xD5);
         assert_eq!(c.registers.l, 0x1A);
         assert_eq!(c.flags.c, false);
-    }
-
-    #[test]
-    fn inx() {
-        let mut c = CPU::new();
-        c.bus.write_byte(0x0000, 0x03);
-        c.registers.set_bc(0xFFFF);
-        c.execute();
-        assert_eq!(c.registers.get_bc(), 0x00);
     }
 
     #[test]
