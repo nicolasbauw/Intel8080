@@ -480,7 +480,7 @@ impl CPU {
 
             0x78 => self.registers.a = self.registers.b,                    // MOV A,B                                                     // MOV B,B
             0x79 => self.registers.a = self.registers.c,                    // MOV A,C
-            0x7A => self.registers.a = self.registers.b,                    // MOV A,D
+            0x7A => self.registers.a = self.registers.d,                    // MOV A,D
             0x7B => self.registers.a = self.registers.e,                    // MOV A,E
             0x7C => self.registers.a = self.registers.h,                    // MOV A,H
             0x7D => self.registers.a = self.registers.l,                    // MOV A,L
@@ -2322,6 +2322,117 @@ mod instructions {
         assert_eq!(c.registers.h, 0x31);
         c.execute();
         assert_eq!(c.registers.h, 0x3f);
+        assert_eq!(c.pc, 8);
+    }
+
+    #[test]
+    fn mov_l() {
+        let mut c = CPU::new();
+        c.registers.b = 0x11;
+        c.registers.c = 0x15;
+        c.registers.d = 0x1F;
+        c.registers.e = 0x21;
+        c.registers.h = 0x25;
+        c.registers.l = 0x2F;
+        c.bus.write_byte(0x2525, 0x31);
+        c.registers.a = 0x3F;
+        c.bus.write_byte(0x0000, 0x68);
+        c.bus.write_byte(0x0001, 0x69);
+        c.bus.write_byte(0x0002, 0x6a);
+        c.bus.write_byte(0x0003, 0x6b);
+        c.bus.write_byte(0x0004, 0x6c);
+        c.bus.write_byte(0x0005, 0x6d);
+        c.bus.write_byte(0x0006, 0x6e);
+        c.bus.write_byte(0x0007, 0x6f);
+        c.execute();
+        assert_eq!(c.registers.l, 0x11);
+        c.execute();
+        assert_eq!(c.registers.l, 0x15);
+        c.execute();
+        assert_eq!(c.registers.l, 0x1f);
+        c.execute();
+        assert_eq!(c.registers.l, 0x21);
+        c.execute();
+        assert_eq!(c.registers.l, 0x25);
+        c.execute();
+        assert_eq!(c.registers.l, 0x25);
+        c.execute();
+        assert_eq!(c.registers.l, 0x31);
+        c.execute();
+        assert_eq!(c.registers.l, 0x3f);
+        assert_eq!(c.pc, 8);
+    }
+
+    #[test]
+    fn mov_m() {
+        let mut c = CPU::new();
+        c.registers.b = 0x11;
+        c.registers.c = 0x15;
+        c.registers.d = 0x1F;
+        c.registers.e = 0x21;
+        c.registers.h = 0x25;
+        c.registers.l = 0x2F;
+        c.bus.write_byte(0x2f2f, 0x31);
+        c.registers.a = 0x3F;
+        c.bus.write_byte(0x0000, 0x70);
+        c.bus.write_byte(0x0001, 0x71);
+        c.bus.write_byte(0x0002, 0x72);
+        c.bus.write_byte(0x0003, 0x73);
+        c.bus.write_byte(0x0004, 0x74);
+        c.bus.write_byte(0x0005, 0x75);
+        c.bus.write_byte(0x0006, 0x77);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x11);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x15);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x1f);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x21);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x25);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x2f);
+        c.execute();
+        assert_eq!(c.bus.read_byte(0x252f), 0x3f);
+        assert_eq!(c.pc, 7);
+    }
+
+    #[test]
+    fn mov_a() {
+        let mut c = CPU::new();
+        c.registers.b = 0x11;
+        c.registers.c = 0x15;
+        c.registers.d = 0x1F;
+        c.registers.e = 0x21;
+        c.registers.h = 0x25;
+        c.registers.l = 0x2F;
+        c.bus.write_byte(0x252f, 0x31);
+        c.registers.a = 0x3F;
+        c.bus.write_byte(0x0000, 0x78);
+        c.bus.write_byte(0x0001, 0x79);
+        c.bus.write_byte(0x0002, 0x7a);
+        c.bus.write_byte(0x0003, 0x7b);
+        c.bus.write_byte(0x0004, 0x7c);
+        c.bus.write_byte(0x0005, 0x7d);
+        c.bus.write_byte(0x0006, 0x7e);
+        c.bus.write_byte(0x0007, 0x7f);
+        c.execute();
+        assert_eq!(c.registers.a, 0x11);
+        c.execute();
+        assert_eq!(c.registers.a, 0x15);
+        c.execute();
+        assert_eq!(c.registers.a, 0x1f);
+        c.execute();
+        assert_eq!(c.registers.a, 0x21);
+        c.execute();
+        assert_eq!(c.registers.a, 0x25);
+        c.execute();
+        assert_eq!(c.registers.a, 0x2f);
+        c.execute();
+        assert_eq!(c.registers.a, 0x31);
+        c.execute();
+        assert_eq!(c.registers.a, 0x31);
         assert_eq!(c.pc, 8);
     }
 }
