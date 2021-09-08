@@ -2442,4 +2442,30 @@ mod instructions {
         assert_eq!(c.halt, true);
         assert_eq!(c.pc, 1);
     }
+
+    #[test]
+    fn add_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x80);
+        c.registers.a = 0x0f;
+        c.registers.b = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_c() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x81);
+        c.registers.a = 0x0f;
+        c.registers.c = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
 }
