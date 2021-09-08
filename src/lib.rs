@@ -2102,4 +2102,12 @@ mod instructions {
         assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0x506c)
     }
+
+    #[test]
+    fn nop() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x00);
+        c.execute();
+        assert_eq!(c.pc, 1);
+    }
 }
