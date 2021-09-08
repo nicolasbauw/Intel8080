@@ -276,7 +276,7 @@ impl CPU {
         let lsb = self.registers.a & 0x0F;
         if (lsb > 9) | self.flags.a {
             if (self.registers.a & 0x0F + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
-            self.registers.a += 6;
+            self.registers.a = self.registers.a.wrapping_add(6);
         }
 
         let msb = self.registers.a >> 4;
