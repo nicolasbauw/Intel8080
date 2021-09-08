@@ -1722,13 +1722,43 @@ mod instructions {
     }
 
     #[test]
-    fn dcx() {
+    fn dcx_b() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x0b);
+        c.registers.set_bc(0);
+        c.execute();
+        assert_eq!(c.registers.get_bc(), 0xffff);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dcx_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x1b);
+        c.registers.set_de(0);
+        c.execute();
+        assert_eq!(c.registers.get_de(), 0xffff);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dcx_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x2b);
+        c.registers.set_hl(0);
+        c.execute();
+        assert_eq!(c.registers.get_hl(), 0xffff);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dcx_sp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x3b);
         c.sp = 0xFFFF;
         c.execute();
         assert_eq!(c.pc, 1);
-        assert_eq!(c.sp, 0xFFFF);
+        assert_eq!(c.sp, 0xFFFE);
     }
 
     #[test]
