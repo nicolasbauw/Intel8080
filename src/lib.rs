@@ -1108,6 +1108,28 @@ impl CPU {
 mod instructions {
     use super::*;
     #[test]
+    fn ldax_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x0a);
+        c.bus.write_byte(0x100, 0x65);
+        c.registers.set_bc(0x100);
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x65);
+    }
+
+    #[test]
+    fn ldax_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x1a);
+        c.bus.write_byte(0x100, 0x65);
+        c.registers.set_de(0x100);
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x65);
+    }
+
+    #[test]
     fn lxi_b() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x01);
