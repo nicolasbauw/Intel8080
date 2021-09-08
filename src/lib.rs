@@ -1737,7 +1737,78 @@ mod instructions {
     }
 
     #[test]
-    fn mvi() {
+    fn mvi_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x06);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.b, 0x88);
+    }
+
+    #[test]
+    fn mvi_c() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x0e);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.c, 0x88);
+    }
+
+    #[test]
+    fn mvi_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x16);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.d, 0x88);
+    }
+
+    #[test]
+    fn mvi_e() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x1e);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.e, 0x88);
+    }
+
+    #[test]
+    fn mvi_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x26);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.h, 0x88);
+    }
+
+    #[test]
+    fn mvi_l() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x2e);
+        c.bus.write_byte(0x0001, 0x88);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.registers.l, 0x88);
+    }
+
+    #[test]
+    fn mvi_m() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x36);
+        c.bus.write_byte(0x0001, 0x88);
+        c.registers.set_hl(0x100);
+        c.execute();
+        assert_eq!(c.pc, 2);
+        assert_eq!(c.bus.read_byte(0x100), 0x88);
+    }
+
+    #[test]
+    fn mvi_a() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3e);
         c.bus.write_byte(0x0001, 0x88);
