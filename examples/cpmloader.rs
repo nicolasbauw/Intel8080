@@ -42,7 +42,6 @@ fn bdos_call(c: &CPU) {
         loop {
             let c = c.bus.read_byte(a);
             if c as char == '$' {
-                println!("");
                 break;
             } else {
                 a += 1;
