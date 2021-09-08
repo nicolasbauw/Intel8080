@@ -37,11 +37,6 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
 }
 
 fn bdos_call(c: &CPU) {
-    #[cfg(debug_assertions)]
-    {
-        println!("BDOS CALL");
-    }
-
     if c.registers.c == 0x09 {
         let mut a = c.registers.get_de();
         loop {
