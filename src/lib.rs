@@ -1345,6 +1345,7 @@ mod instructions {
         c.bus.write_byte(0x0001, 0x05);
         c.registers.b = 0x01;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0, c.registers.b);
         assert_eq!(true, c.flags.z);
         c.execute();
@@ -1359,6 +1360,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x2F);
         c.registers.a = 0b11001100;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0b00110011, c.registers.a);
         
     }
@@ -1370,6 +1372,7 @@ mod instructions {
         c.registers.a = 0x6C;
         c.registers.d = 0x2E;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x9A, c.registers.a);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.c, false);
@@ -1385,6 +1388,7 @@ mod instructions {
         c.registers.a = 0x42;
         c.registers.c = 0x3D;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x7F, c.registers.a);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.c, false);
@@ -1399,6 +1403,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x97);
         c.registers.a = 0x3E;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x00, c.registers.a);
         assert_eq!(c.flags.z, true);
         assert_eq!(c.flags.c, false);
@@ -1415,6 +1420,7 @@ mod instructions {
         c.flags.c = true;
         c.registers.l = 0x02;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x01, c.registers.a);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.c, false);
@@ -1430,6 +1436,7 @@ mod instructions {
         c.registers.a = 0xFC;
         c.registers.c = 0x0F;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x0C, c.registers.a);
     }
 
@@ -1440,6 +1447,7 @@ mod instructions {
         c.registers.a = 0x33;
         c.registers.c = 0x0F;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x3F, c.registers.a);
     }
 
@@ -1450,6 +1458,7 @@ mod instructions {
         c.registers.a = 0x0A;
         c.registers.e = 0x05;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(0x0A, c.registers.a);
         assert_eq!(0x05, c.registers.e);
         assert_eq!(c.flags.z, false);
@@ -1462,6 +1471,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x07);
         c.registers.a = 0xF2;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.flags.c, true);
         assert_eq!(c.registers.a, 0xE5);
     }
@@ -1472,6 +1482,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x0F);
         c.registers.a = 0xF2;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.flags.c, false);
         assert_eq!(c.registers.a, 0x79);
     }
@@ -1482,6 +1493,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x17);
         c.registers.a = 0xB5;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.flags.c, true);
         assert_eq!(c.registers.a, 0x6A);
     }
@@ -1493,6 +1505,7 @@ mod instructions {
         c.registers.a = 0x6A;
         c.flags.c = true;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.flags.c, false);
         assert_eq!(c.registers.a, 0xB5);
     }
@@ -1505,6 +1518,7 @@ mod instructions {
         c.registers.e = 0x9D;
         c.sp = 0x3A2C;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0x3A2A);
         assert_eq!(c.bus.read_byte(0x3A2B), 0x8F);
         assert_eq!(c.bus.read_byte(0x3A2A), 0x9D);
@@ -1522,6 +1536,7 @@ mod instructions {
         c.flags.a = false;
         c.sp = 0x502A;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0x5028);
         assert_eq!(c.bus.read_byte(0x5029), 0x1F);
         assert_eq!(c.bus.read_byte(0x5028), 0x47);
@@ -1535,6 +1550,7 @@ mod instructions {
         c.bus.write_byte(0x123A, 0x93);
         c.sp = 0x1239;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0x123B);
         assert_eq!(c.registers.l, 0x3D);
         assert_eq!(c.registers.h, 0x93);
@@ -1548,6 +1564,7 @@ mod instructions {
         c.bus.write_byte(0x2C01, 0xFF);
         c.sp = 0x2C00;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.registers.a, 0xFF);
         assert_eq!(c.flags.s, true);
         assert_eq!(c.flags.z, true);
@@ -1566,6 +1583,7 @@ mod instructions {
         assert_eq!(c.registers.h, 0xD5);
         assert_eq!(c.registers.l, 0x1A);
         assert_eq!(c.flags.c, false);
+        assert_eq!(c.pc, 1);
     }
 
     #[test]
@@ -1574,6 +1592,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x0b);
         c.sp = 0xFFFF;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0xFFFF);
     }
 
@@ -1584,6 +1603,7 @@ mod instructions {
         c.registers.set_de(0x3355);
         c.registers.set_hl(0x00FF);
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.registers.get_de(), 0x00FF);
         assert_eq!(c.registers.get_hl(), 0x3355);
     }
@@ -1597,6 +1617,7 @@ mod instructions {
         c.bus.write_byte(0x10ad, 0xF0);
         c.bus.write_byte(0x10ae, 0x0d);
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.registers.get_hl(), 0x0df0);
         assert_eq!(c.bus.read_byte(0x10ad), 0x3c);
         assert_eq!(c.bus.read_byte(0x10ae), 0x0b);
@@ -1608,6 +1629,7 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x3e);
         c.bus.write_byte(0x0001, 0x88);
         c.execute();
+        assert_eq!(c.pc, 2);
         assert_eq!(c.registers.a, 0x88);
     }
 
@@ -1618,6 +1640,7 @@ mod instructions {
         c.bus.write_byte(0x0001, 0x42);
         c.registers.a = 0x14;
         c.execute();
+        assert_eq!(c.pc, 2);
         assert_eq!(c.registers.a, 0x56);
         assert_eq!(c.flags.p, true);
         assert_eq!(c.flags.a, false);
@@ -1637,6 +1660,7 @@ mod instructions {
         c.flags.c = false;
         c.execute();
         c.execute();
+        assert_eq!(c.pc, 4);
         assert_eq!(c.registers.a, 0x57);
         assert_eq!(c.flags.p, false);
         assert_eq!(c.flags.a, false);
@@ -1652,6 +1676,7 @@ mod instructions {
         c.bus.write_byte(0x0001, 0x01);
         c.registers.a = 0x00;
         c.execute();
+        assert_eq!(c.pc, 2);
         assert_eq!(c.registers.a, 0xFF);
         assert_eq!(c.flags.p, true);
         assert_eq!(c.flags.a, false);
@@ -1668,6 +1693,7 @@ mod instructions {
         c.bus.write_byte(0x0002, 0x01);
         c.execute();
         c.execute();
+        assert_eq!(c.pc, 3);
         assert_eq!(c.registers.a, 0xFF);
         assert_eq!(c.flags.p, true);
         assert_eq!(c.flags.a, false);
@@ -1685,6 +1711,7 @@ mod instructions {
         c.registers.c = 0x3a;
         c.execute();
         c.execute();
+        assert_eq!(c.pc, 3);
         assert_eq!(c.registers.a, 0x0a);
         assert_eq!(c.flags.p, true);
         assert_eq!(c.flags.a, false);
@@ -1700,6 +1727,7 @@ mod instructions {
         c.bus.write_byte(0x0001, 0x81);
         c.registers.a = 0x3b;
         c.execute();
+        assert_eq!(c.pc, 2);
         assert_eq!(c.registers.a, 0b1011_1010);
     }
 
@@ -1712,6 +1740,7 @@ mod instructions {
         c.registers.c = 0xb5;
         c.execute();
         c.execute();
+        assert_eq!(c.pc, 3);
         assert_eq!(c.registers.a, 0xbf);
     }
 
@@ -1724,6 +1753,7 @@ mod instructions {
         c.bus.write_byte(0x0003, 0x40);
         c.execute();
         c.execute();
+        assert_eq!(c.pc, 4);
         assert_eq!(c.flags.c, false);
         assert_eq!(c.flags.z, false);
     }
@@ -1736,6 +1766,7 @@ mod instructions {
         c.bus.write_byte(0x0002, 0x01);
         c.registers.set_hl(0xae29);
         c.execute();
+        assert_eq!(c.pc, 3);
         assert_eq!(c.bus.read_word(0x010a), 0xae29);
     }
 
@@ -1748,6 +1779,7 @@ mod instructions {
         c.bus.write_byte(0x025b, 0xff);
         c.bus.write_byte(0x025c, 0x03);
         c.execute();
+        assert_eq!(c.pc, 3);
         assert_eq!(c.registers.l, 0xff);
         assert_eq!(c.registers.h, 0x03);
     }
@@ -1780,6 +1812,7 @@ mod instructions {
         c.flags.a = false;
         c.flags.c = false;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.registers.a, 1);
         assert_eq!(c.flags.a, true);
         assert_eq!(c.flags.c, true);
@@ -1792,6 +1825,7 @@ mod instructions {
         c.registers.h = 0x50;
         c.registers.l = 0x6c;
         c.execute();
+        assert_eq!(c.pc, 1);
         assert_eq!(c.sp, 0x506c)
     }
 }
