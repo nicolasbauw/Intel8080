@@ -469,10 +469,8 @@ impl CPU {
                 self.bus.write_byte(addr, self.registers.l)
             },
 
-            0x76 => {                                                       // HLT
-                self.halt = true;
-                self.pc += 1;
-            },
+            0x76 => self.halt = true,                                       // HLT
+
             0x77 => {                                                       // MOV (HL), A
                 let addr = self.registers.get_hl();
                 self.bus.write_byte(addr, self.registers.a)
@@ -2434,5 +2432,14 @@ mod instructions {
         c.execute();
         assert_eq!(c.registers.a, 0x31);
         assert_eq!(c.pc, 8);
+    }
+
+    #[test]
+    fn hlt() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x76);
+        c.execute();
+        assert_eq!(c.halt, true);
+        assert_eq!(c.pc, 1);
     }
 }
