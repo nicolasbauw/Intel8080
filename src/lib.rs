@@ -1709,10 +1709,48 @@ mod instructions {
     }
 
     #[test]
-    fn dad() {
+    fn dad_b() {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x09);
         c.registers.set_bc(0x339F);
+        c.registers.set_hl(0xA17B);
+        c.execute();
+        assert_eq!(c.registers.h, 0xD5);
+        assert_eq!(c.registers.l, 0x1A);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dad_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x19);
+        c.registers.set_de(0x339F);
+        c.registers.set_hl(0xA17B);
+        c.execute();
+        assert_eq!(c.registers.h, 0xD5);
+        assert_eq!(c.registers.l, 0x1A);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dad_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x29);
+        c.registers.set_hl(0x339F);
+        c.execute();
+        assert_eq!(c.registers.h, 0x67);
+        assert_eq!(c.registers.l, 0x3e);
+        assert_eq!(c.flags.c, false);
+        assert_eq!(c.pc, 1);
+    }
+
+    #[test]
+    fn dad_sp() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x39);
+        c.sp = 0x339F;
         c.registers.set_hl(0xA17B);
         c.execute();
         assert_eq!(c.registers.h, 0xD5);
