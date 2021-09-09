@@ -2468,4 +2468,82 @@ mod instructions {
         assert_eq!(c.flags.a, true);
         assert_eq!(c.flags.c, false);
     }
+
+    #[test]
+    fn add_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x82);
+        c.registers.a = 0x0f;
+        c.registers.d = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_e() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x83);
+        c.registers.a = 0x0f;
+        c.registers.e = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x84);
+        c.registers.a = 0x0f;
+        c.registers.h = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_l() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x85);
+        c.registers.a = 0x0f;
+        c.registers.l = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_m() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x86);
+        c.bus.write_byte(0x100, 0x53);
+        c.registers.a = 0x0f;
+        c.registers.set_hl(0x100);
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x62);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn add_a() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x87);
+        c.registers.a = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x1e);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
 }
