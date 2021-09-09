@@ -274,18 +274,21 @@ impl CPU {
 
     // Decimal adjust accumulator
     fn daa(&mut self) {
+        let mut inc_a: u8 = 0;
+        let mut c = self.flags.c;
         let lsb = self.registers.a & 0x0F;
         if (lsb > 9) || self.flags.a {
-            self.registers.a = self.registers.a.wrapping_add(6);
-            if (lsb + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
+            inc_a += 0x06;
         }
 
         let msb = self.registers.a >> 4;
-        if (msb > 9) || self.flags.c {
-            self.registers.a = self.registers.a.wrapping_add(0x60);
-            if (msb + 6) > 0x09 { self.flags.c = true }
+        if (msb > 9) || self.flags.c || (msb >= 9 && lsb > 9) {
+            inc_a += 0x60;
+            c = true;
         }
 
+        self.add(inc_a);
+        self.flags.c = c;
         self.flags.z = self.registers.a == 0x00;
         self.flags.s = bit::get(self.registers.a, 7);
         self.flags.p = self.registers.a.count_ones() & 0x01 == 0x00;
