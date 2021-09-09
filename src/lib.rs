@@ -276,20 +276,19 @@ impl CPU {
     fn daa(&mut self) {
         let lsb = self.registers.a & 0x0F;
         if (lsb > 9) | self.flags.a {
-            if (self.registers.a & 0x0F + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
             self.registers.a = self.registers.a.wrapping_add(6);
+            if (lsb + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
         }
 
         let msb = self.registers.a >> 4;
         if (msb > 9) | self.flags.c {
-            if (self.registers.a >> 4 ) > 0x09 { self.flags.c = true } else { self.flags.c = false }
-            let a = self.registers.a.wrapping_add(0x60);
-            self.registers.a = a;
+            self.registers.a = self.registers.a.wrapping_add(0x60);
+            if (msb + 6) > 0x09 { self.flags.c = true }
         }
-        let a = self.registers.a;
-        self.flags.z = a == 0x00;
-        self.flags.s = bit::get(a, 7);
-        self.flags.p = a.count_ones() & 0x01 == 0x00;
+
+        self.flags.z = self.registers.a == 0x00;
+        self.flags.s = bit::get(self.registers.a, 7);
+        self.flags.p = self.registers.a.count_ones() & 0x01 == 0x00;
     }
 
     // subroutine stack push
