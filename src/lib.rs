@@ -2882,4 +2882,84 @@ mod instructions {
         assert_eq!(c.flags.a, false);
         assert_eq!(c.flags.c, true);
     }
+
+    #[test]
+    fn rst_0() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xc7);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_1() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xcf);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 8);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_2() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xd7);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x10);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_3() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xdf);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x18);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_4() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xe7);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x20);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_5() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xef);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x28);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_6() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xf7);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x30);
+        assert_eq!(c.sp, 0xfefe);
+    }
+
+    #[test]
+    fn rst_7() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0xff);
+        c.sp = 0xff00;
+        c.execute();
+        assert_eq!(c.pc, 0x38);
+        assert_eq!(c.sp, 0xfefe);
+    }
 }
