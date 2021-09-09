@@ -2011,7 +2011,7 @@ mod instructions {
         assert_eq!(c.pc, 3);
         assert_eq!(c.registers.a, 0x0a);
         assert_eq!(c.flags.p, true);
-        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.a, true);
         assert_eq!(c.flags.z, false);
         assert_eq!(c.flags.s, false);
         assert_eq!(c.flags.c, false);
