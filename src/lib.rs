@@ -1,4 +1,4 @@
-//! Yet another Intel 8080 Emulator. It passes the TST8080 and 8080PRE tests.
+//! Yet another Intel 8080 Emulator. It passes the TST8080, 8080PRE, CPUTEST and 8080EXM tests.
 //! 
 //! Example for a small loop:
 //! ```rust

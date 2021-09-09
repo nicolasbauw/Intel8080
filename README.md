@@ -4,7 +4,7 @@
 [![Current docs Version](https://docs.rs/intel8080/badge.svg)](https://docs.rs/intel8080)
 [![Downloads badge](https://img.shields.io/crates/d/intel8080.svg)](https://crates.io/crates/intel8080)
 
-Yet another Intel 8080 Emulator. It passes the TST8080 and 8080PRE tests.
+Yet another Intel 8080 Emulator. It passes the TST8080, 8080PRE, CPUTEST and 8080EXM tests.
 
 Example for a small loop:
 ```rust
