@@ -155,7 +155,7 @@ impl CPU {
         self.registers.a = r;
     }
 
-    // SUB register or memory from Accumulator with borrow
+    // SBB register or memory from Accumulator with borrow
     fn sbb(&mut self, n: u8) {
         let c: u8 = match self.flags.c {
             false => 0,
@@ -2761,5 +2761,125 @@ mod instructions {
         assert_eq!(c.registers.a, 0);
         assert_eq!(c.flags.z, true);
         assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sbb_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x98);
+        c.registers.a = 0x0f;
+        c.registers.b = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_c() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x99);
+        c.registers.a = 0x0f;
+        c.registers.c = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9a);
+        c.registers.a = 0x0f;
+        c.registers.d = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_e() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9b);
+        c.registers.a = 0x0f;
+        c.registers.e = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9c);
+        c.registers.a = 0x0f;
+        c.registers.h = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_l() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9d);
+        c.registers.a = 0x0f;
+        c.registers.l = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
+    }
+
+    #[test]
+    fn sbb_m() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9e);
+        c.registers.a = 0x0f;
+        c.bus.write_byte(0x100, 2);
+        c.registers.set_hl(0x100);
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x0c);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sbb_a() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x9f);
+        c.registers.a = 0x0f;
+        c.flags.c = true;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0xff);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.a, false);
+        assert_eq!(c.flags.c, true);
     }
 }
