@@ -177,6 +177,7 @@ impl CPU {
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
+        self.flags.a = (n | self.registers.a) & 0x08 != 0;
         self.flags.c = false;
         self.registers.a = r;
     }
