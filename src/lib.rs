@@ -275,13 +275,13 @@ impl CPU {
     // Decimal adjust accumulator
     fn daa(&mut self) {
         let lsb = self.registers.a & 0x0F;
-        if (lsb > 9) | self.flags.a {
+        if (lsb > 9) || self.flags.a {
             self.registers.a = self.registers.a.wrapping_add(6);
             if (lsb + 6) > 0x09 { self.flags.a = true } else { self.flags.a = false }
         }
 
         let msb = self.registers.a >> 4;
-        if (msb > 9) | self.flags.c {
+        if (msb > 9) || self.flags.c {
             self.registers.a = self.registers.a.wrapping_add(0x60);
             if (msb + 6) > 0x09 { self.flags.c = true }
         }
