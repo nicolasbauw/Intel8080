@@ -2658,4 +2658,108 @@ mod instructions {
         assert_eq!(c.flags.a, true);
         assert_eq!(c.flags.c, false);
     }
+
+    #[test]
+    fn sub_b() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x90);
+        c.registers.a = 0x0f;
+        c.registers.b = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_c() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x91);
+        c.registers.a = 0x0f;
+        c.registers.c = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_d() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x92);
+        c.registers.a = 0x0f;
+        c.registers.d = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_e() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x93);
+        c.registers.a = 0x0f;
+        c.registers.e = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_h() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x94);
+        c.registers.a = 0x0f;
+        c.registers.h = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_l() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x95);
+        c.registers.a = 0x0f;
+        c.registers.l = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_m() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x96);
+        c.registers.a = 0x0f;
+        c.bus.write_byte(0x100, 2);
+        c.registers.set_hl(0x100);
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0x0d);
+        assert_eq!(c.flags.z, false);
+        assert_eq!(c.flags.c, false);
+    }
+
+    #[test]
+    fn sub_a() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x97);
+        c.registers.a = 0x0f;
+        c.execute();
+        assert_eq!(c.pc, 1);
+        assert_eq!(c.registers.a, 0);
+        assert_eq!(c.flags.z, true);
+        assert_eq!(c.flags.c, false);
+    }
 }
