@@ -75,7 +75,7 @@ impl AddressBus {
     // Gets the "data bus" value put by the requested device.
     pub fn get_io_in(&self, device: u8) -> u8 {
         #[cfg(debug_assertions)] {
-            println!("IN : device : {}", usize::from(device));
+            println!("IN : device : {}, value : {:#04x}", usize::from(device), self.io_in[usize::from(device)]);
         }
         self.io_in[usize::from(device)]
     }
