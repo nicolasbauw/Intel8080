@@ -74,7 +74,9 @@ impl AddressBus {
     #[doc(hidden)]
     // Gets the "data bus" value put by the requested device.
     pub fn get_io_in(&self, device: u8) -> u8 {
-        println!("IN : device : {}", usize::from(device));
+        #[cfg(debug_assertions)] {
+            println!("IN : device : {}", usize::from(device));
+        }
         self.io_in[usize::from(device)]
     }
 
@@ -95,7 +97,9 @@ impl AddressBus {
     /// ```
     /// IMPORTANT : after a IN instruction execution, a clear_io is done automatically.
     pub fn set_io_out(&mut self, device: u8, value: u8) {
-        println!("OUT : device : {}", usize::from(device));
+        #[cfg(debug_assertions)] {
+            println!("OUT : device : {}", usize::from(device));
+        }
         self.pending_io.kind = IO::OUT;
         self.pending_io.device = device;
         self.pending_io.value = value;
