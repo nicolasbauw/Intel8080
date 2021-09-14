@@ -31,7 +31,7 @@ impl AddressBus {
     #[doc(hidden)]
     pub fn new() -> AddressBus {
         AddressBus {
-            ram: vec![0; 0xFFFF],
+            ram: vec![0; 65536],
             io_in: vec![0; 256],
             pending_io: PendingIO{
                 kind: IO::CLR,
