@@ -71,8 +71,7 @@ impl AddressBus {
         Ok(())
     }
 
-    #[doc(hidden)]
-    // Gets the "data bus" value put by the requested device.
+    // Gets the "data bus" value put by the requested device. Only used by the IN instruction.
     pub fn get_io_in(&self, device: u8) -> u8 {
         #[cfg(debug_assertions)] {
             println!("IN : device : {}, value : {:#04x}", usize::from(device), self.io_in[usize::from(device)]);
@@ -85,33 +84,31 @@ impl AddressBus {
         self.io_in[usize::from(device)] = value;
     }
 
-    /// Sets next IO OUT PendingIO operation, for processing in you own code.
-    /// ```rust
-    /// # use intel8080::{CPU, memory::*};
-    /// let mut c = CPU::new();
-    /// c.bus.write_byte(0x0000, 0xdb);     // IN 0
-    /// c.bus.write_byte(0x0001, 0x00);
-    /// c.bus.set_io_out(0, 0x55);          // device 0 puts 0x55 on "data bus" (output for peripheral, input for the CPU, hence the IO::IN)
-    /// c.execute();                        // the CPU executes the IN instruction, so accumulator equals input data 0x55
-    /// assert_eq!(c.registers.a, 0x55);
-    /// ```
-    /// IMPORTANT : after a IN instruction execution, a clear_io is done automatically.
+    // Sets next IO OUT PendingIO operation, for processing in outer code.
     pub fn set_io_out(&mut self, device: u8, value: u8) {
         #[cfg(debug_assertions)] {
-            println!("OUT : device : {}", usize::from(device));
+            println!("OUT : device : {}, value : {:#04x}", device, value);
         }
         self.pending_io.kind = IO::OUT;
         self.pending_io.device = device;
         self.pending_io.value = value;
     }
 
+    /// Gets the "data bus" value put by an OUT instruction, for processing in your own code.
+    pub fn get_io_out(&self, device: u8) -> Option<u8> {
+        /*#[cfg(debug_assertions)] {
+            println!("IN : device : {}, value : {:#04x}", usize::from(device), self.io_in[usize::from(device)]);
+        }*/
+        if self.pending_io.kind == IO::OUT && self.pending_io.device == device{ Some(self.pending_io.value) } else { None }
+    }
+
     /// When done with IO handling, you should clear the pending operation in your own code
     /// ```rust
     /// # use intel8080::{CPU, memory::*};
     /// # let mut c = CPU::new();
-    /// c.bus.clear_io();
+    /// c.bus.clear_io_out();
     /// ```
-    pub fn clear_io(&mut self,) {
+    pub fn clear_io_out(&mut self,) {
         self.pending_io.kind = IO::CLR;
         self.pending_io.device = 0;
         self.pending_io.value = 0;
