@@ -633,50 +633,44 @@ impl CPU {
             /* Register pair instructions */
             // PUSH data onto stack
             0xC5 => {                                                       // PUSH B
-                self.bus.write_byte((self.sp) - 1, self.registers.b);
-                self.bus.write_byte((self.sp) - 2, self.registers.c);
-                self.sp = self.sp - 2;
+                self.sp = self.sp.wrapping_sub(2);
+                self.bus.write_word(self.sp, self.registers.get_bc());
             },
             0xD5 => {                                                       // PUSH D
-                self.bus.write_byte((self.sp) - 1, self.registers.d);
-                self.bus.write_byte((self.sp) - 2, self.registers.e);
-                self.sp = self.sp - 2;
+                self.sp = self.sp.wrapping_sub(2);
+                self.bus.write_word(self.sp, self.registers.get_de());
             },
             0xE5 => {                                                       // PUSH H
-                self.bus.write_byte((self.sp) - 1, self.registers.h);
-                self.bus.write_byte((self.sp) - 2, self.registers.l);
-                self.sp = self.sp - 2;
+                self.sp = self.sp.wrapping_sub(2);
+                self.bus.write_word(self.sp, self.registers.get_hl());
             },
             0xF5 => {                                                       // PUSH PSW
-                self.bus.write_byte((self.sp) - 1, self.registers.a);
-                self.bus.write_byte((self.sp) - 2, self.flags.as_byte());
-                self.sp = self.sp - 2;
+                self.sp = self.sp.wrapping_sub(2);
+                self.bus.write_byte(self.sp, self.flags.as_byte());
+                self.bus.write_byte(self.sp + 1, self.registers.a);
             },
 
             // POP data off stack
             0xC1 => {                                                       // POP B
-                self.registers.b = self.bus.read_byte((self.sp)+1);
-                self.registers.c = self.bus.read_byte(self.sp);
-                self.sp += 2;
+                self.registers.set_bc(self.bus.read_word(self.sp));
+                self.sp = self.sp.wrapping_add(2);
             },
 
             0xD1 => {                                                       // POP D
-                self.registers.d = self.bus.read_byte((self.sp)+1);
-                self.registers.e = self.bus.read_byte(self.sp);
-                self.sp += 2;
+                self.registers.set_de(self.bus.read_word(self.sp));
+                self.sp = self.sp.wrapping_add(2);
             },
 
             0xE1 => {                                                       // POP H
-                self.registers.h = self.bus.read_byte((self.sp)+1);
-                self.registers.l = self.bus.read_byte(self.sp);
-                self.sp += 2;
+                self.registers.set_hl(self.bus.read_word(self.sp));
+                self.sp = self.sp.wrapping_add(2);
             },
 
             0xF1 => {                                                       // POP PSW
                 self.registers.a = self.bus.read_byte((self.sp)+1);
                 let bflags = self.bus.read_byte(self.sp);
                 self.flags.from_byte(bflags);
-                self.sp += 2;
+                self.sp = self.sp.wrapping_add(2);
             },
 
             // DAD Double add
