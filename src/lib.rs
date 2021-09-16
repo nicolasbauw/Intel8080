@@ -296,20 +296,20 @@ impl CPU {
 
     // subroutine stack push
     fn subroutine_stack_push(&mut self) {
-        self.bus.write_word((self.sp) -2 , self.pc + 3);
-        self.sp = self.sp - 2;
+        self.sp = self.sp.wrapping_sub(2);
+        self.bus.write_word(self.sp , self.pc.wrapping_add(3));
     }
 
     // subroutine stack pop
     fn subroutine_stack_pop(&mut self) {
         self.pc = self.bus.read_word(self.sp);
-        self.sp += 2;
+        self.sp = self.sp.wrapping_add(2);
     }
 
     // interrupt stack push
     fn interrupt_stack_push(&mut self) {
-        self.bus.write_word((self.sp) -2 , self.pc);
-        self.sp = self.sp - 2;
+        self.sp = self.sp.wrapping_sub(2);
+        self.bus.write_word(self.sp , self.pc);
     }
 
     /// Fetches and executes one instruction from (pc)
