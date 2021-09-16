@@ -3,6 +3,8 @@
 ### v0.7.0
 
 - Fixed IN and OUT instructions pc increment
+- Interrupts disabled on startup
+- Reworked the I/O system
 
 ### v0.6.0
 
