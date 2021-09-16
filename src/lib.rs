@@ -36,7 +36,6 @@
 //! # use intel8080::CPU;
 //! # let mut c = CPU::new();
 //! c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
-//! c.inte = false;                     // we start with interrupts disabled, for the test
 //! c.int = (true, 0xcf);               // we create an interrupt request : flag set to true
 //! loop {                              // and its associated RST command
 //!     c.execute();                    // test program is designed to never leave a loop
@@ -90,7 +89,7 @@ impl CPU {
             bus: AddressBus::new(),
             halt: false,
             int: (false, 0),
-            inte: true,
+            inte: false,
             debug: false
         }
     }
