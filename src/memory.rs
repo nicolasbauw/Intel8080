@@ -72,9 +72,6 @@ impl AddressBus {
     #[doc(hidden)]
     // Gets the "data bus" value put by the requested device. Only used by the IN instruction.
     pub fn get_io_in(&self, device: u8) -> u8 {
-        #[cfg(debug_assertions)] {
-            println!("IN : device : {}, value : {:#04x}", usize::from(device), self.io_in[usize::from(device)]);
-        }
         self.io_in[usize::from(device)]
     }
 
@@ -86,9 +83,6 @@ impl AddressBus {
     #[doc(hidden)]
     // Sets next IO OUT PendingIO operation, for processing in outer code. Only used by the OUT instruction.
     pub fn set_io_out(&mut self, device: u8, value: u8) {
-        #[cfg(debug_assertions)] {
-            println!("OUT : device : {}, value : {:#04x}", device, value);
-        }
         self.pending_io.kind = IO::OUT;
         self.pending_io.device = device;
         self.pending_io.value = value;
@@ -96,9 +90,6 @@ impl AddressBus {
 
     /// Gets the "data bus" value put by an OUT instruction, for processing in your own code.
     pub fn get_io_out(&self, device: u8) -> Option<u8> {
-        /*#[cfg(debug_assertions)] {
-            println!("IN : device : {}, value : {:#04x}", usize::from(device), self.io_in[usize::from(device)]);
-        }*/
         if self.pending_io.kind == IO::OUT && self.pending_io.device == device{ Some(self.pending_io.value) } else { None }
     }
 

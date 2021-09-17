@@ -1059,12 +1059,15 @@ impl CPU {
 
             /* Input / output instructions */
             // IN Input
-            0xDB => self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1)),
-                
+            0xDB => {
+                self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1));
+                if self.debug { println!("IN : device : {}, value : {:#04x}", usize::from(self.bus.read_byte(self.pc+1)), self.registers.a); }
+            },
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
                 self.bus.set_io_out(device, self.registers.a);
+                if self.debug { println!("OUT : device : {}, value : {:#04x}", device, self.registers.a); }
             },
 
             _ => {}
