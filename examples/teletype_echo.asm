@@ -16,7 +16,7 @@
 ;14	000	0x00
 ;15	000	0x00
 
-;FOR REV 1 SERIAL I/O BOARDS (AND REV 0 MODIFIED BOARDS) -> all switches down on the altair panel, 0x00 on device 255
+;FOR REV 1 SERIAL I/O BOARDS (AND REV 0 MODIFIED BOARDS) -> all switches down on the altair panel, 0x00 on device 255 (Basic 3.2)
 ;0	333	0xDB		IN	0x00
 ;1	000	0x00
 ;2	017	0x0F		RRC
