@@ -8,7 +8,8 @@ pub struct AddressBus {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-/// Is the requested IO an input, output, or no IO requested ?
+#[doc(hidden)]
+// Is the requested IO an input, output, or no IO requested ?
 pub enum IO {
     /// OUT : from CPU to peripherals
     OUT,
@@ -17,8 +18,9 @@ pub enum IO {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-/// The last requested IO OUT on IO bus. The interface between the emulator, its IO bus and your own code are
-/// the get_io_out, set_io_in and clear_io functions owned by the AddressBus struct.
+#[doc(hidden)]
+// The last requested IO OUT on IO bus. The interface between the emulator, its IO bus and your own code are
+// the get_io_out, set_io_in and clear_io functions owned by the AddressBus struct.
 pub struct PendingIO {
     pub kind: IO,
     pub device: u8,
@@ -93,7 +95,8 @@ impl AddressBus {
         if self.pending_io.kind == IO::OUT && self.pending_io.device == device{ Some(self.pending_io.value) } else { None }
     }
 
-    /// When done with handling of IO OUT, you should clear the pending operation in your own code with the clear_io_out() function.
+    #[doc(hidden)]
+    // When done with handling of IO OUT, you should clear the pending operation in your own code with the clear_io_out() function.
     pub fn clear_io_out(&mut self,) {
         self.pending_io.kind = IO::CLR;
         self.pending_io.device = 0;
