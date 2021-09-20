@@ -4,7 +4,7 @@
 
 - Fixed IN and OUT instructions pc increment
 - Interrupts disabled on startup
-- Reworked the I/O system
+- Reworked the experimental I/O system
 
 ### v0.6.0
 
