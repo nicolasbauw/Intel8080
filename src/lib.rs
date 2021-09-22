@@ -324,6 +324,9 @@ impl CPU {
             }
         };
         
+        // if opcode is RST : is it called via an interrupt, or via the program ?
+        let direct_rst = if self.inte && self.int.0 { false } else { true };
+
         // interrupts enable and pending interrupt : we disable interrupts and clear interrupt request
         if self.inte && self.int.0 {
             self.inte = false;
@@ -1018,42 +1021,66 @@ impl CPU {
 
             /* RST (Restart) instructions */
             0xC7 => {                                                       // RST 0
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0000;
             },
 
             0xCF => {                                                       // RST 1
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0008;
             },
 
             0xD7 => {                                                       // RST 2
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0010;
             },
 
             0xDF => {                                                       // RST 3
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0018;
             },
 
             0xE7 => {                                                       // RST 4
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0020;
             },
 
             0xEF => {                                                       // RST 5
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0028;
             },
 
             0xF7 => {                                                       // RST 6
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0030;
             },
 
             0xFF => {                                                       // RST 7
-                self.interrupt_stack_push();
+                match direct_rst {
+                    false => self.interrupt_stack_push(),
+                    true => { self.pc +=1; self.interrupt_stack_push(); }
+                }
                 self.pc = 0x0038;
             },
 
