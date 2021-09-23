@@ -54,8 +54,7 @@ c.bus.write_byte(0x0003, 0x01);
 loop {
     c.execute();
     // Data sent from CPU to device 1 (OUT) ? let's handle it
-    let value = c.bus.get_io_out(1);
-    if let Some(v) = value {
+    if let Some(v) = c.bus.get_io_out(1) {
         assert_eq!(v, 0x55);
         // OUT handled ? let's clear it
         c.bus.clear_io_out();
