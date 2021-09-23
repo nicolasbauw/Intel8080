@@ -45,6 +45,14 @@ loop {                              // and its associated RST command
 }
 ```
 
+Starting with 0.8.0, a more stabilized I/O system:
+```rust
+// Data sent from CPU to device 1 (OUT) ? let's handle it
+let value = c.bus.get_io_out(1);
+if let Some(v) = value {
+... }
+```
+
 Includes a "cpmloader" which loads and executes basic CP/M programs:
 
 ```

@@ -41,7 +41,15 @@
 //!     c.execute();                    // test program is designed to never leave a loop
 //!     if c.pc == 0x0000 { break }     // if it does not execute the interrupt routine
 //! }
-//! ``` 
+//! ```
+//! 
+//! Starting with 0.8.0, a more stabilized I/O system:
+//! ```no_run
+//! // Data sent from CPU to device 1 (OUT) ? let's handle it
+//! let value = c.bus.get_io_out(1);
+//! if let Some(v) = value {
+//! ... }
+//! ```
 //! 
 //! Includes a "cpmloader" which loads and executes basic CP/M programs:
 //! 
