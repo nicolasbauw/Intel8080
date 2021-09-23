@@ -95,8 +95,7 @@ impl AddressBus {
         if self.pending_io.kind == IO::OUT && self.pending_io.device == device{ Some(self.pending_io.value) } else { None }
     }
 
-    #[doc(hidden)]
-    // When done with handling of IO OUT, you should clear the pending operation in your own code with the clear_io_out() function.
+    /// When done with handling of IO OUT, you should clear the pending operation in your own code with the clear_io_out() function.
     pub fn clear_io_out(&mut self,) {
         self.pending_io.kind = IO::CLR;
         self.pending_io.device = 0;
