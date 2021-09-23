@@ -7,12 +7,12 @@
         jmp     start
 
 int     .org    $8
-        sub     a
+        mov     b,a
         ret
 
 start   .org $9700
         ei
-@loop   cmp     a
+@loop   cmp     b
         jnz     @loop
         ret
         .end
