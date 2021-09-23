@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.8.0
+
+- Fixed a bug impacting direct RST instructions call
+- Stabilized the I/O system
+- This version runs my teletype emulator and Altair basic
+
 ### v0.7.0
 
 - Fixed IN and OUT instructions pc increment
