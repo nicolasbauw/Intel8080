@@ -69,6 +69,8 @@
 //! cargo run --release --example cpmloader -- bin/helloworld.bin
 //! ```
 //! 
+//! You can also check my [teletype emulator](https://crates.io/crates/teletype).
+//! 
 //! The provided source code examples can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
 //! 
 
