@@ -86,6 +86,25 @@ use crate::register::Registers;
 use crate::memory::AddressBus;
 use crate::flags::Flags;
 
+const CYCLES: [u8; 256] = [
+    4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,
+    4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,
+    4, 10, 16, 5, 5, 5, 7, 4, 4, 10, 16, 5, 5, 5, 7, 4,
+    4, 10, 13, 5, 10, 10, 10, 4, 4, 10, 13, 5, 5, 5, 7, 4 ,
+    5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
+    5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
+    5, 5, 5, 5, 5, 5, 7, 5, 5, 5, 5, 5, 5, 5, 7, 5,
+    7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 5, 5, 7, 5,
+    4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+    4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+    4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+    4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,
+    5, 10, 10, 10, 11, 11, 7, 11, 5, 10, 10, 10, 11, 17, 7, 11,
+    5, 10, 10, 10, 11, 11, 7, 11, 5, 10, 10, 10, 11, 17, 7, 11,
+    5, 10, 10, 18, 11, 11, 7, 11, 5, 5, 10, 5, 11, 17, 7, 11,
+    5, 10, 10, 4, 11, 11, 7, 11, 5, 5, 10, 4, 11, 17, 7, 11,
+];
+
 pub struct CPU {
     pub registers: Registers,
     pub flags: Flags,
@@ -334,8 +353,8 @@ impl CPU {
     }
 
     /// Fetches and executes one instruction from (pc)
-    pub fn execute(&mut self) {
-        if self.halt { return };
+    pub fn execute(&mut self) -> u8 {
+        if self.halt { return 7 };
 
         let opcode = match self.inte {
             false => self.bus.read_byte(self.pc),
@@ -345,6 +364,8 @@ impl CPU {
                 true => self.int.1,
             }
         };
+
+        let mut cycles = CYCLES[opcode as usize];
         
         // if opcode is RST : is it called via an interrupt, or via the program ?
         let direct_rst = if self.inte && self.int.0 { false } else { true };
@@ -964,6 +985,7 @@ impl CPU {
                 if !self.flags.c {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
             // CZ Call if zero
@@ -972,6 +994,7 @@ impl CPU {
                 if self.flags.z {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
             // CNZ Call if not zero
@@ -980,6 +1003,7 @@ impl CPU {
                 if !self.flags.z {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                  } else { self.pc += 3 }
             },
             // CM Call if minus
@@ -988,6 +1012,7 @@ impl CPU {
                 if self.flags.s {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
             // CP Call if plus
@@ -996,6 +1021,7 @@ impl CPU {
                 if !self.flags.s {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
             // CPE Call if parity even
@@ -1004,6 +1030,7 @@ impl CPU {
                 if self.flags.p {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
             // CPO Call if parity odd
@@ -1012,6 +1039,7 @@ impl CPU {
                 if !self.flags.p {
                     self.subroutine_stack_push();
                     self.pc = addr;
+                    cycles += 6;
                 } else { self.pc += 3 }
             },
 
@@ -1019,21 +1047,21 @@ impl CPU {
             // RET Return
             0xC9 => self.subroutine_stack_pop(),                                                    // RET
             // RC Return if carry
-            0xD8 => if self.flags.c { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RC
+            0xD8 => if self.flags.c { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RC
             // RNC Return if no carry
-            0xD0 => if !self.flags.c { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RNC
+            0xD0 => if !self.flags.c { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RNC
             // RZ Return if zero
-            0xC8 => if self.flags.z { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RZ
+            0xC8 => if self.flags.z { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RZ
             // RNZ Return if not zero
-            0xC0 => if !self.flags.z { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RNZ
+            0xC0 => if !self.flags.z { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RNZ
             // RM Return if minus
-            0xF8 => if self.flags.s { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RM
+            0xF8 => if self.flags.s { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RM
             // RP Return if plus
-            0xF0 => if !self.flags.s { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RP
+            0xF0 => if !self.flags.s { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RP
             // RPE Return if parity even
-            0xE8 => if self.flags.p { self.subroutine_stack_pop(); } else { self.pc +=1; },         // RPE
+            0xE8 => if self.flags.p { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RPE
             // RPO Return if parity odd
-            0xE0 => if !self.flags.p { self.subroutine_stack_pop(); } else { self.pc +=1; },        // RPO
+            0xE0 => if !self.flags.p { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RPO
 
             /* Interrupt flip-flop instructions */
             // EI Enable interrupts
@@ -1140,6 +1168,8 @@ impl CPU {
             println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
             println!("--------------------------------------------------------------------------------------------------------");
         }
+
+        cycles
 
     }
 }
