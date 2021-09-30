@@ -354,7 +354,7 @@ impl CPU {
 
     /// Fetches and executes one instruction from (pc)
     pub fn execute(&mut self) -> u8 {
-        if self.halt { return 7 };
+        if self.halt { return 0 };
 
         let opcode = match self.inte {
             false => self.bus.read_byte(self.pc),
