@@ -81,6 +81,7 @@ pub mod flags;
 pub mod memory;
 #[doc(hidden)]
 pub mod bit;
+mod dasm;
 
 use crate::register::Registers;
 use crate::memory::AddressBus;
@@ -1151,6 +1152,14 @@ impl CPU {
             _ => {}
         }
 
+        if self.debug
+        {
+            println!("dasm : {}", self.dasm());
+            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", opcode, self.pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
+            println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
+            println!("--------------------------------------------------------------------------------------------------------");
+        }
+
         match opcode {
             0xe9 | 0xc3 | 0xDA | 0xD2 | 0xCA | 0xC2 | 0xFA | 0xF2 | 0xEA | 0xE2 |
             0xCD | 0xDC | 0xD4 | 0xCC | 0xC4 | 0xFC | 0xF4 | 0xEC | 0xE4 |
@@ -1161,13 +1170,6 @@ impl CPU {
             0xDB | 0xD3 => self.pc += 2,
             0x32 | 0x3A | 0x22 | 0x2A | 0x01 | 0x11 | 0x21 | 0x31 => self.pc += 3,
             _ => self.pc +=1,
-        }
-
-        if self.debug
-        {
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", opcode, self.pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
-            println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
-            println!("--------------------------------------------------------------------------------------------------------");
         }
 
         cycles
@@ -3202,5 +3204,13 @@ mod instructions {
         assert_eq!(c.flags.z, true);
         assert_eq!(c.flags.c, false);
         assert_eq!(c.registers.a, 0x12);
+    }
+
+    #[test]
+    fn dasm() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x35);
+        c.registers.set_hl(0x3412);
+        assert_eq!(c.dasm(), String::from("DCR $3412"));
     }
 }
