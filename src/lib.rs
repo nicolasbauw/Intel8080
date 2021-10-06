@@ -116,6 +116,7 @@ pub struct CPU {
     pub int: (bool, u8),
     /// Interrupt enable bit
     pub inte: bool,
+    /// Displays CPU state on stdout after each execute()
     pub debug: bool
 }
 
@@ -352,7 +353,7 @@ impl CPU {
         self.bus.write_word(self.sp , self.pc);
     }
 
-    /// Fetches and executes one instruction from (pc)
+    /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles.
     pub fn execute(&mut self) -> u8 {
         if self.halt { return 0 };
 
