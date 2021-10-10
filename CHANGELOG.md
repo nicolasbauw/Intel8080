@@ -1,4 +1,8 @@
 # Changelog
+### 0.10.0
+
+- Disassembler
+- Better debug output
 
 ### 0.9.0
 
