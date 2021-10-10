@@ -356,7 +356,9 @@ impl CPU {
 
     /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles.
     pub fn execute(&mut self) -> u8 {
+        let mut dasm = String::new();
         if self.halt { return 0 };
+        if self.debug { dasm = self.dasm(); }
 
         let opcode = match self.inte {
             false => self.bus.read_byte(self.pc),
@@ -366,6 +368,14 @@ impl CPU {
                 true => self.int.1,
             }
         };
+
+        if self.debug
+        {
+            println!("opcode : {:#04x}\tdisassembly : {}",opcode, dasm);
+            println!("PC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", self.pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
+            println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
+            println!("--------------------------------------------------------------------------------------------------------");
+        }
 
         let mut cycles = CYCLES[opcode as usize];
         
@@ -1150,14 +1160,6 @@ impl CPU {
             },
 
             _ => {}
-        }
-
-        if self.debug
-        {
-            println!("dasm : {}", self.dasm());
-            println!("opcode : {:#04x}\tPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", opcode, self.pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
-            println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
-            println!("--------------------------------------------------------------------------------------------------------");
         }
 
         match opcode {
@@ -3211,6 +3213,14 @@ mod instructions {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x35);
         c.registers.set_hl(0x3412);
-        assert_eq!(c.dasm(), String::from("DCR $3412"));
+        assert_eq!(c.dasm(), String::from("DCR (HL)"));
+    }
+
+    #[test]
+    fn dasm_mvi() {
+        let mut c = CPU::new();
+        c.bus.write_byte(0x0000, 0x3E);
+        c.bus.write_byte(0x0001, 0x55);
+        assert_eq!(c.dasm(), String::from("MVI A,$55"));
     }
 }
