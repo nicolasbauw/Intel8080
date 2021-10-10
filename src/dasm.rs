@@ -252,364 +252,281 @@ impl CPU {
             // LXI Move immediate data
             0x01 => {                                                       // LXI B
                 let d16 = self.bus.read_word(self.pc + 1); 
-                format!("LXI B,${:4x}", d16)
+                format!("LXI B,${:04x}", d16)
             },
             0x11 => {                                                       // LXI D
                 let d16 = self.bus.read_word(self.pc + 1); 
-                format!("LXI D,${:4x}", d16)
+                format!("LXI D,${:04x}", d16)
             },
             0x21 => {                                                       // LXI H
                 let d16 = self.bus.read_word(self.pc + 1); 
-                format!("LXI H,${:4x}", d16)
+                format!("LXI H,${:04x}", d16)
             },
             0x31 => {                                                       // LXI SP
                 let d16 = self.bus.read_word(self.pc + 1); 
-                format!("LXI SP,${:4x}", d16)
+                format!("LXI SP,${:04x}", d16)
             },
 
             // MVI Move immediate data
             0x06 => {                                                       // MVI B,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI B,${:2x}", d8)
+                format!("MVI B,${:02x}", d8)
             },
             0x0E => {                                                       // MVI C,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI C,${:2x}", d8)
+                format!("MVI C,${:02x}", d8)
             },
             0x16 => {                                                       // MVI D,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI D,${:2x}", d8)
+                format!("MVI D,${:02x}", d8)
             },
             0x1E => {                                                       // MVI E,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI E,${:2x}", d8)
+                format!("MVI E,${:02x}", d8)
             },
             0x26 => {                                                       // MVI H,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI H,${:2x}", d8)
+                format!("MVI H,${:02x}", d8)
             },
             0x2E => {                                                       // MVI L,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI L,${:2x}", d8)
+                format!("MVI L,${:02x}", d8)
             },
             0x36 => {                                                       // MVI (HL),d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI (HL),${:2x}", d8)
+                format!("MVI (HL),${:02x}", d8)
             },
             0x3E => {                                                       // MVI A,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                format!("MVI A,${:2x}", d8)
+                format!("MVI A,${:02x}", d8)
             },
     
-                // ADI add immediate to accumulator
-                /*0xC6 => {                                                       // ADI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.add(n);
-                },
+            // ADI add immediate to accumulator
+            0xC6 => {                                                       // ADI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("ADI ${:02x}", n)
+            },
     
-                // ACI add immediate to accumulator with carry
-                0xCE => {                                                       // ACI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.adc(n);
-                },
+            // ACI add immediate to accumulator with carry
+            0xCE => {                                                       // ACI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("ACI ${:02x}", n)
+            },
     
-                // SUI substract immediate from accumulator
-                0xD6 => {                                                       // SUI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.sub(n);
-                },
+            // SUI substract immediate from accumulator
+            0xD6 => {                                                       // SUI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("SUI ${:02x}", n)
+            },
     
-                // SBI substract immediate from accumulator with borrow
-                0xDE => {                                                       // SBI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.sbb(n);
-                },
+            // SBI substract immediate from accumulator with borrow
+            0xDE => {                                                       // SBI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("SBI ${:02x}", n)
+            },
     
-                // ANI and immediate with accumulator
-                0xE6 => {                                                       // ANI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.ana(n);
-                },
+            // ANI and immediate with accumulator
+            0xE6 => {                                                       // ANI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("ANI ${:02x}", n)
+            },
     
-                // XRI exclusive-or immediate with accumulator
-                0xEE => {                                                       // XRI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.xra(n);
-                },
+            // XRI exclusive-or immediate with accumulator
+            0xEE => {                                                       // XRI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("XRI ${:02x}", n)
+            },
     
-                // ORI or immediate with accumulator
-                0xF6 => {                                                       // ORI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.ora(n);
-                },
+            // ORI or immediate with accumulator
+            0xF6 => {                                                       // ORI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("ORI ${:02x}", n)
+            },
     
-                // CPI compare immediate with accumulator
-                0xFE => {                                                       // CPI
-                    let n = self.bus.read_byte(self.pc + 1);
-                    self.cmp(n);
-                },
+            // CPI compare immediate with accumulator
+            0xFE => {                                                       // CPI
+                let n = self.bus.read_byte(self.pc + 1);
+                format!("CPI ${:02x}", n)
+            },
     
-                /* Direct addressing instructions */
-                // STA Store accumulator direct
-                0x32 => {                                                       // STA
-                    let addr = self.bus.read_word(self.pc + 1);
-                    self.bus.write_byte(addr, self.registers.a);
-                },
+            /* Direct addressing instructions */
+            // STA Store accumulator direct
+            0x32 => {                                                       // STA
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("STA ${:04x}", addr)
+            },
     
-                // LDA Store accumulator direct
-                0x3A => {                                                       // LDA
-                    let addr = self.bus.read_word(self.pc + 1);
-                    self.registers.a = self.bus.read_byte(addr);
-                },
+            // LDA Store accumulator direct
+            0x3A => {                                                       // LDA
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("LDA ${:04x}", addr)
+            },
     
-                // SHLD Store H and L direct
-                0x22 => {                                                       // SHLD
-                    let d = self.registers.get_hl();
-                    let addr = self.bus.read_word(self.pc + 1);
-                    self.bus.write_word(addr, d);
-                },
+            // SHLD Store H and L direct
+            0x22 => {                                                       // SHLD
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("SHLD ${:04x}", addr)
+            },
     
-                // LHLD Load H and L direct
-                0x2A => {                                                       // LHLD
-                    let addr = self.bus.read_word(self.pc + 1);
-                    let d = self.bus.read_word(addr);
-                    self.registers.set_hl(d);
-                },
-    
-                /* JUMP instructions */
-                // Load program counter
-                0xE9 => { self.pc = self.registers.get_hl(); },                 // PCHL
-                // JMP Jump
-                0xC3 => {                                                       // JMP
-                    let addr = self.bus.read_word(self.pc + 1);
-                    self.pc = addr;
-                },
-                // JC Jump if carry
-                0xDA => {                                                       // JC
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.c { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JNC Jump if no carry
-                0xD2 => {                                                       // JNC
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.c { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JZ Jump if zero
-                0xCA => {                                                       // JZ
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.z { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JNZ Jump if not zero
-                0xC2 => {                                                       // JNZ
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.z { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JM Jump if minus
-                0xFA => {                                                       // JM
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.s { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JP Jump if positive
-                0xF2 => {                                                       // JP
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.s { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JPE Jump if parity even
-                0xEA => {                                                       // JPE
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.p { self.pc = addr; } else { self.pc += 3 }
-                },
-                // JPO Jump if parity odd
-                0xE2 => {                                                       // JPO
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.p { self.pc = addr; } else { self.pc += 3 }
-                },
-    
-                /* Call subroutine instructions */
-                // CALL
-                0xCD => {                                                       // CALL
-                    let addr = self.bus.read_word(self.pc + 1);
-                    self.subroutine_stack_push();
-                    self.pc = addr;
-                },
-                // CC Call if carry
-                0xDC => {                                                       // CC
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.c {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                    } else { self.pc += 3 }
-                },
-                // CNC Call if no carry
-                0xD4 => {                                                       // CNC
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.c {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-                // CZ Call if zero
-                0xCC => {                                                       // CZ
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.z {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-                // CNZ Call if not zero
-                0xC4 => {                                                       // CNZ
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.z {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                     } else { self.pc += 3 }
-                },
-                // CM Call if minus
-                0xFC => {                                                       // CM
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.s {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-                // CP Call if plus
-                0xF4 => {                                                       // CP
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.s {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-                // CPE Call if parity even
-                0xEC => {                                                       // CPE
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if self.flags.p {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-                // CPO Call if parity odd
-                0xE4 => {                                                       // CPO
-                    let addr = self.bus.read_word(self.pc + 1);
-                    if !self.flags.p {
-                        self.subroutine_stack_push();
-                        self.pc = addr;
-                        cycles += 6;
-                    } else { self.pc += 3 }
-                },
-    
-                /* Return from subroutine instructions */
-                // RET Return
-                0xC9 => self.subroutine_stack_pop(),                                                    // RET
-                // RC Return if carry
-                0xD8 => if self.flags.c { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RC
-                // RNC Return if no carry
-                0xD0 => if !self.flags.c { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RNC
-                // RZ Return if zero
-                0xC8 => if self.flags.z { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RZ
-                // RNZ Return if not zero
-                0xC0 => if !self.flags.z { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RNZ
-                // RM Return if minus
-                0xF8 => if self.flags.s { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RM
-                // RP Return if plus
-                0xF0 => if !self.flags.s { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RP
-                // RPE Return if parity even
-                0xE8 => if self.flags.p { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },         // RPE
-                // RPO Return if parity odd
-                0xE0 => if !self.flags.p { self.subroutine_stack_pop(); cycles += 6; } else { self.pc +=1; },        // RPO
-    
-                /* Interrupt flip-flop instructions */
-                // EI Enable interrupts
-                0xFB => self.inte = true,
-                // DI Disable Interrupts
-                0xF3 => self.inte = false,
-    
-                /* RST (Restart) instructions */
-                0xC7 => {                                                       // RST 0
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0000;
-                },
-    
-                0xCF => {                                                       // RST 1
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0008;
-                },
-    
-                0xD7 => {                                                       // RST 2
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0010;
-                },
-    
-                0xDF => {                                                       // RST 3
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0018;
-                },
-    
-                0xE7 => {                                                       // RST 4
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0020;
-                },
-    
-                0xEF => {                                                       // RST 5
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0028;
-                },
-    
-                0xF7 => {                                                       // RST 6
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0030;
-                },
-    
-                0xFF => {                                                       // RST 7
-                    match direct_rst {
-                        false => self.interrupt_stack_push(),
-                        true => { self.pc +=1; self.interrupt_stack_push(); }
-                    }
-                    self.pc = 0x0038;
-                },
-    
-                /* Input / output instructions */
-                // IN Input
-                0xDB => {
-                    self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1));
-                    if self.debug { println!("IN : device : {}, value : {:#04x}", usize::from(self.bus.read_byte(self.pc+1)), self.registers.a); }
-                },
-                // OUT Output
-                0xD3 => {
-                    let device = self.bus.read_byte(self.pc+1);
-                    self.bus.set_io_out(device, self.registers.a);
-                    if self.debug { println!("OUT : device : {}, value : {:#04x}", device, self.registers.a); }
-                },*/
+            // LHLD Load H and L direct
+            0x2A => {                                                       // LHLD
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("LHLD ${:04x}", addr)
+            },
 
-                _ => String::new()
+            /* JUMP instructions */
+            // Load program counter
+            0xE9 => String::from("PCHL"),                                   // PCHL
+            // JMP Jump
+            0xC3 => {                                                       // JMP
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JMP ${:04x}", addr)
+            },
+            // JC Jump if carry
+            0xDA => {                                                       // JC
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JC ${:04x}", addr)
+            },
+            // JNC Jump if no carry
+            0xD2 => {                                                       // JNC
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JNC ${:04x}", addr)
+            },
+            // JZ Jump if zero
+            0xCA => {                                                       // JZ
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JZ ${:04x}", addr)
+            },
+            // JNZ Jump if not zero
+            0xC2 => {                                                       // JNZ
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JNZ ${:04x}", addr)
+            },
+            // JM Jump if minus
+            0xFA => {                                                       // JM
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JM ${:04x}", addr)
+            },
+            // JP Jump if positive
+            0xF2 => {                                                       // JP
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JP ${:04x}", addr)
+            },
+            // JPE Jump if parity even
+            0xEA => {                                                       // JPE
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JPE ${:04x}", addr)
+            },
+            // JPO Jump if parity odd
+            0xE2 => {                                                       // JPO
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("JPO ${:04x}", addr)
+            },
+    
+            /* Call subroutine instructions */
+            // CALL
+            0xCD => {                                                       // CALL
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CALL ${:04x}", addr)
+            },
+            // CC Call if carry
+            0xDC => {                                                       // CC
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CC ${:04x}", addr)
+            },
+            // CNC Call if no carry
+            0xD4 => {                                                       // CNC
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CNC ${:04x}", addr)
+            },
+            // CZ Call if zero
+            0xCC => {                                                       // CZ
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CZ ${:04x}", addr)
+            },
+            // CNZ Call if not zero
+            0xC4 => {                                                       // CNZ
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CNZ ${:04x}", addr)
+            },
+            // CM Call if minus
+            0xFC => {                                                       // CM
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CM ${:04x}", addr)
+            },
+            // CP Call if plus
+            0xF4 => {                                                       // CP
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CP ${:04x}", addr)
+            },
+            // CPE Call if parity even
+            0xEC => {                                                       // CPE
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CPE ${:04x}", addr)
+            },
+            // CPO Call if parity odd
+            0xE4 => {                                                       // CPO
+                let addr = self.bus.read_word(self.pc + 1);
+                format!("CPO ${:04x}", addr)
+            },
+    
+            /* Return from subroutine instructions */
+            // RET Return
+            0xC9 => String::from("RET"),                                // RET
+            // RC Return if carry
+            0xD8 => String::from("RC"),                                 // RC
+            // RNC Return if no carry
+            0xD0 => String::from("RNC"),                                // RNC
+            // RZ Return if zero
+            0xC8 => String::from("RZ"),                                 // RZ
+            // RNZ Return if not zero
+            0xC0 => String::from("RNZ"),                                // RNZ
+            // RM Return if minus
+            0xF8 => String::from("RM"),                                 // RM
+            // RP Return if plus
+            0xF0 => String::from("RP"),                                 // RP
+            // RPE Return if parity even
+            0xE8 => String::from("RPE"),                                // RPE
+            // RPO Return if parity odd
+            0xE0 => String::from("RPO"),                                // RPO
+    
+            /* Interrupt flip-flop instructions */
+            // EI Enable interrupts
+            0xFB => String::from("EI"), 
+            // DI Disable Interrupts
+            0xF3 => String::from("DI"), 
+
+            /* RST (Restart) instructions */
+            0xC7 => String::from("RST 0"), 
+
+            0xCF => String::from("RST 1"),
+
+            0xD7 => String::from("RST 2"),
+
+            0xDF => String::from("RST 3"),
+
+            0xE7 => String::from("RST 4"),
+
+            0xEF => String::from("RST 5"),
+
+            0xF7 => String::from("RST 6"),
+
+            0xFF => String::from("RST 7"),
+    
+            /* Input / output instructions */
+            // IN Input
+            0xDB => {
+                let device = self.bus.read_byte(self.pc+1);
+                format!("IN ${:02x}", device)
+            },
+            // OUT Output
+            0xD3 => {
+                let device = self.bus.read_byte(self.pc+1);
+                format!("OUT ${:02x}", device)
+            },
+
+            _ => String::new()
         
+        }
     }
-}
 }
