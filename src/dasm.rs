@@ -1,8 +1,8 @@
 use crate::CPU;
 
 impl CPU {
-    pub fn dasm(&self) -> String {
-        let opcode = self.bus.read_byte(self.pc);
+    pub fn dasm(&self, pc: u16) -> String {
+        let opcode = self.bus.read_byte(pc);
         match opcode {
             /* Carry bit instructions */
             0x3f => String::from("CMC"),                                    // CMC
@@ -251,126 +251,126 @@ impl CPU {
             /* Immediate instructions */
             // LXI Move immediate data
             0x01 => {                                                       // LXI B
-                let d16 = self.bus.read_word(self.pc + 1); 
+                let d16 = self.bus.read_word(pc + 1); 
                 format!("LXI B,${:04x}", d16)
             },
             0x11 => {                                                       // LXI D
-                let d16 = self.bus.read_word(self.pc + 1); 
+                let d16 = self.bus.read_word(pc + 1); 
                 format!("LXI D,${:04x}", d16)
             },
             0x21 => {                                                       // LXI H
-                let d16 = self.bus.read_word(self.pc + 1); 
+                let d16 = self.bus.read_word(pc + 1); 
                 format!("LXI H,${:04x}", d16)
             },
             0x31 => {                                                       // LXI SP
-                let d16 = self.bus.read_word(self.pc + 1); 
+                let d16 = self.bus.read_word(pc + 1); 
                 format!("LXI SP,${:04x}", d16)
             },
 
             // MVI Move immediate data
             0x06 => {                                                       // MVI B,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI B,${:02x}", d8)
             },
             0x0E => {                                                       // MVI C,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI C,${:02x}", d8)
             },
             0x16 => {                                                       // MVI D,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI D,${:02x}", d8)
             },
             0x1E => {                                                       // MVI E,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI E,${:02x}", d8)
             },
             0x26 => {                                                       // MVI H,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI H,${:02x}", d8)
             },
             0x2E => {                                                       // MVI L,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI L,${:02x}", d8)
             },
             0x36 => {                                                       // MVI (HL),d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI (HL),${:02x}", d8)
             },
             0x3E => {                                                       // MVI A,d8
-                let d8 = self.bus.read_byte(self.pc + 1);
+                let d8 = self.bus.read_byte(pc + 1);
                 format!("MVI A,${:02x}", d8)
             },
     
             // ADI add immediate to accumulator
             0xC6 => {                                                       // ADI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("ADI ${:02x}", n)
             },
     
             // ACI add immediate to accumulator with carry
             0xCE => {                                                       // ACI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("ACI ${:02x}", n)
             },
     
             // SUI substract immediate from accumulator
             0xD6 => {                                                       // SUI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("SUI ${:02x}", n)
             },
     
             // SBI substract immediate from accumulator with borrow
             0xDE => {                                                       // SBI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("SBI ${:02x}", n)
             },
     
             // ANI and immediate with accumulator
             0xE6 => {                                                       // ANI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("ANI ${:02x}", n)
             },
     
             // XRI exclusive-or immediate with accumulator
             0xEE => {                                                       // XRI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("XRI ${:02x}", n)
             },
     
             // ORI or immediate with accumulator
             0xF6 => {                                                       // ORI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("ORI ${:02x}", n)
             },
     
             // CPI compare immediate with accumulator
             0xFE => {                                                       // CPI
-                let n = self.bus.read_byte(self.pc + 1);
+                let n = self.bus.read_byte(pc + 1);
                 format!("CPI ${:02x}", n)
             },
     
             /* Direct addressing instructions */
             // STA Store accumulator direct
             0x32 => {                                                       // STA
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("STA ${:04x}", addr)
             },
     
             // LDA Store accumulator direct
             0x3A => {                                                       // LDA
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("LDA ${:04x}", addr)
             },
     
             // SHLD Store H and L direct
             0x22 => {                                                       // SHLD
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("SHLD ${:04x}", addr)
             },
     
             // LHLD Load H and L direct
             0x2A => {                                                       // LHLD
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("LHLD ${:04x}", addr)
             },
 
@@ -379,94 +379,94 @@ impl CPU {
             0xE9 => String::from("PCHL"),                                   // PCHL
             // JMP Jump
             0xC3 => {                                                       // JMP
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JMP ${:04x}", addr)
             },
             // JC Jump if carry
             0xDA => {                                                       // JC
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JC ${:04x}", addr)
             },
             // JNC Jump if no carry
             0xD2 => {                                                       // JNC
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JNC ${:04x}", addr)
             },
             // JZ Jump if zero
             0xCA => {                                                       // JZ
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JZ ${:04x}", addr)
             },
             // JNZ Jump if not zero
             0xC2 => {                                                       // JNZ
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JNZ ${:04x}", addr)
             },
             // JM Jump if minus
             0xFA => {                                                       // JM
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JM ${:04x}", addr)
             },
             // JP Jump if positive
             0xF2 => {                                                       // JP
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JP ${:04x}", addr)
             },
             // JPE Jump if parity even
             0xEA => {                                                       // JPE
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JPE ${:04x}", addr)
             },
             // JPO Jump if parity odd
             0xE2 => {                                                       // JPO
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("JPO ${:04x}", addr)
             },
     
             /* Call subroutine instructions */
             // CALL
             0xCD => {                                                       // CALL
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CALL ${:04x}", addr)
             },
             // CC Call if carry
             0xDC => {                                                       // CC
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CC ${:04x}", addr)
             },
             // CNC Call if no carry
             0xD4 => {                                                       // CNC
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CNC ${:04x}", addr)
             },
             // CZ Call if zero
             0xCC => {                                                       // CZ
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CZ ${:04x}", addr)
             },
             // CNZ Call if not zero
             0xC4 => {                                                       // CNZ
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CNZ ${:04x}", addr)
             },
             // CM Call if minus
             0xFC => {                                                       // CM
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CM ${:04x}", addr)
             },
             // CP Call if plus
             0xF4 => {                                                       // CP
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CP ${:04x}", addr)
             },
             // CPE Call if parity even
             0xEC => {                                                       // CPE
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CPE ${:04x}", addr)
             },
             // CPO Call if parity odd
             0xE4 => {                                                       // CPO
-                let addr = self.bus.read_word(self.pc + 1);
+                let addr = self.bus.read_word(pc + 1);
                 format!("CPO ${:04x}", addr)
             },
     
@@ -516,12 +516,12 @@ impl CPU {
             /* Input / output instructions */
             // IN Input
             0xDB => {
-                let device = self.bus.read_byte(self.pc+1);
+                let device = self.bus.read_byte(pc+1);
                 format!("IN ${:02x}", device)
             },
             // OUT Output
             0xD3 => {
-                let device = self.bus.read_byte(self.pc+1);
+                let device = self.bus.read_byte(pc+1);
                 format!("OUT ${:02x}", device)
             },
 
