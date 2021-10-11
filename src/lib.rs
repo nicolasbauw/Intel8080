@@ -1161,11 +1161,18 @@ impl CPU {
         }
 
         if self.debug
-        {
-            println!("opcode : {:#04x}\tdisassembly : {}",opcode, self.dasm(pc));
-            println!("PC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
-            println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
-            println!("--------------------------------------------------------------------------------------------------------");
+        { match opcode {
+            0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF => {
+                println!("opcode : RST");
+                println!("--------------------------------------------------------------------------------------------------------");
+            },
+            _ => {
+                println!("opcode : {:#04x}\tdisassembly : {}", opcode, self.dasm(pc));
+                println!("PC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
+                println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
+                println!("--------------------------------------------------------------------------------------------------------");
+                }
+            }
         }
 
         match opcode {
