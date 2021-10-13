@@ -1,4 +1,9 @@
 # Changelog
+
+### 0.11.0
+
+- FIX debug output for RST instructions
+
 ### 0.10.0
 
 - Disassembler
