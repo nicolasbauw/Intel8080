@@ -252,20 +252,24 @@ impl CPU {
             /* Immediate instructions */
             // LXI Move immediate data
             0x01 => {                                                       // LXI B
-                let d16 = self.bus.read_word(address + 1); 
-                format!("01 {:04x}   LXI B,${:04x}", d16 , d16)
+                let d16 = self.bus.read_word(address + 1);
+                let d16_le = self.bus.read_le_word(address + 1);
+                format!("01 {:04x}   LXI B,${:04x}", d16_le , d16)
             },
             0x11 => {                                                       // LXI D
-                let d16 = self.bus.read_word(address + 1); 
-                format!("11 {:04x}   LXI D,${:04x}", d16, d16)
+                let d16 = self.bus.read_word(address + 1);
+                let d16_le = self.bus.read_le_word(address + 1);
+                format!("11 {:04x}   LXI D,${:04x}", d16_le, d16)
             },
             0x21 => {                                                       // LXI H
-                let d16 = self.bus.read_word(address + 1); 
-                format!("21 {:04x}   LXI H,${:04x}", d16, d16)
+                let d16 = self.bus.read_word(address + 1);
+                let d16_le = self.bus.read_le_word(address + 1);
+                format!("21 {:04x}   LXI H,${:04x}", d16_le, d16)
             },
             0x31 => {                                                       // LXI SP
-                let d16 = self.bus.read_word(address + 1); 
-                format!("31 {:04x}   LXI SP,${:04x}", d16, d16)
+                let d16 = self.bus.read_word(address + 1);
+                let d16_le = self.bus.read_le_word(address + 1);
+                format!("31 {:04x}   LXI SP,${:04x}", d16_le, d16)
             },
 
             // MVI Move immediate data
@@ -354,25 +358,29 @@ impl CPU {
             // STA Store accumulator direct
             0x32 => {                                                       // STA
                 let addr = self.bus.read_word(address + 1);
-                format!("32 {:04x}   STA ${:04x}",addr ,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("32 {:04x}   STA ${:04x}",addr_le ,addr)
             },
     
             // LDA Store accumulator direct
             0x3A => {                                                       // LDA
                 let addr = self.bus.read_word(address + 1);
-                format!("3A {:04x}   LDA ${:04x}",addr ,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("3A {:04x}   LDA ${:04x}",addr_le ,addr)
             },
     
             // SHLD Store H and L direct
             0x22 => {                                                       // SHLD
                 let addr = self.bus.read_word(address + 1);
-                format!("22 {:04x}   SHLD ${:04x}",addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("22 {:04x}   SHLD ${:04x}",addr_le, addr)
             },
     
             // LHLD Load H and L direct
             0x2A => {                                                       // LHLD
                 let addr = self.bus.read_word(address + 1);
-                format!("2A {:04x}   LHLD ${:04x}",addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("2A {:04x}   LHLD ${:04x}",addr_le, addr)
             },
 
             /* JUMP instructions */
@@ -381,94 +389,112 @@ impl CPU {
             // JMP Jump
             0xC3 => {                                                       // JMP
                 let addr = self.bus.read_word(address + 1);
-                format!("C3 {:04x}   JMP ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("C3 {:04x}   JMP ${:04x}", addr_le,addr)
             },
             // JC Jump if carry
             0xDA => {                                                       // JC
                 let addr = self.bus.read_word(address + 1);
-                format!("DA {:04x}   JC ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("DA {:04x}   JC ${:04x}", addr_le,addr)
             },
             // JNC Jump if no carry
             0xD2 => {                                                       // JNC
                 let addr = self.bus.read_word(address + 1);
-                format!("D2 {:04x}   JNC ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("D2 {:04x}   JNC ${:04x}", addr_le,addr)
             },
             // JZ Jump if zero
             0xCA => {                                                       // JZ
                 let addr = self.bus.read_word(address + 1);
-                format!("CA {:04x}   JZ ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("CA {:04x}   JZ ${:04x}", addr_le,addr)
             },
             // JNZ Jump if not zero
             0xC2 => {                                                       // JNZ
                 let addr = self.bus.read_word(address + 1);
-                format!("C2 {:04x}   JNZ ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("C2 {:04x}   JNZ ${:04x}", addr_le,addr)
             },
             // JM Jump if minus
             0xFA => {                                                       // JM
                 let addr = self.bus.read_word(address + 1);
-                format!("FA {:04x}   JM ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("FA {:04x}   JM ${:04x}", addr_le,addr)
             },
             // JP Jump if positive
             0xF2 => {                                                       // JP
                 let addr = self.bus.read_word(address + 1);
-                format!("F2 {:04x}   JP ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("F2 {:04x}   JP ${:04x}", addr_le,addr)
             },
             // JPE Jump if parity even
             0xEA => {                                                       // JPE
                 let addr = self.bus.read_word(address + 1);
-                format!("EA {:04x}   JPE ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("EA {:04x}   JPE ${:04x}", addr_le,addr)
             },
             // JPO Jump if parity odd
             0xE2 => {                                                       // JPO
                 let addr = self.bus.read_word(address + 1);
-                format!("E2 {:04x}   JPO ${:04x}", addr,addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("E2 {:04x}   JPO ${:04x}", addr_le,addr)
             },
     
             /* Call subroutine instructions */
             // CALL
             0xCD => {                                                       // CALL
                 let addr = self.bus.read_word(address + 1);
-                format!("CD {:04x}   CALL ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("CD {:04x}   CALL ${:04x}", addr_le, addr)
             },
             // CC Call if carry
             0xDC => {                                                       // CC
                 let addr = self.bus.read_word(address + 1);
-                format!("DC {:04x}   CC ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("DC {:04x}   CC ${:04x}", addr_le, addr)
             },
             // CNC Call if no carry
             0xD4 => {                                                       // CNC
                 let addr = self.bus.read_word(address + 1);
-                format!("D4 {:04x}   CNC ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("D4 {:04x}   CNC ${:04x}", addr_le, addr)
             },
             // CZ Call if zero
             0xCC => {                                                       // CZ
                 let addr = self.bus.read_word(address + 1);
-                format!("CC {:04x}   CZ ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("CC {:04x}   CZ ${:04x}", addr_le, addr)
             },
             // CNZ Call if not zero
             0xC4 => {                                                       // CNZ
                 let addr = self.bus.read_word(address + 1);
-                format!("C4 {:04x}   CNZ ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("C4 {:04x}   CNZ ${:04x}", addr_le, addr)
             },
             // CM Call if minus
             0xFC => {                                                       // CM
                 let addr = self.bus.read_word(address + 1);
-                format!("FC {:04x}   CM ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("FC {:04x}   CM ${:04x}", addr_le, addr)
             },
             // CP Call if plus
             0xF4 => {                                                       // CP
                 let addr = self.bus.read_word(address + 1);
-                format!("F4 {:04x}   CP ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("F4 {:04x}   CP ${:04x}", addr_le, addr)
             },
             // CPE Call if parity even
             0xEC => {                                                       // CPE
                 let addr = self.bus.read_word(address + 1);
-                format!("EC {:04x}   CPE ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("EC {:04x}   CPE ${:04x}", addr_le, addr)
             },
             // CPO Call if parity odd
             0xE4 => {                                                       // CPO
                 let addr = self.bus.read_word(address + 1);
-                format!("E4 {:04x}   CPO ${:04x}", addr, addr)
+                let addr_le = self.bus.read_le_word(address + 1);
+                format!("E4 {:04x}   CPO ${:04x}", addr_le, addr)
             },
     
             /* Return from subroutine instructions */
