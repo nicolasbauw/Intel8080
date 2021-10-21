@@ -51,9 +51,14 @@ impl AddressBus {
         self.ram[usize::from(address)] = data;
     }
 
-    /// Reads a word stored in memory in little endian byte order
+    /// Reads a word stored in memory in little endian byte order, returns this word in BE byte order
     pub fn read_word(&self, address: u16) -> u16 {
         u16::from(self.ram[usize::from(address)]) | (u16::from(self.ram[usize::from(address + 1)]) << 8)
+    }
+
+    // Reads a word stored in memory in little endian byte order, returns this word in LE byte order
+    pub fn read_le_word(&self, address: u16) -> u16 {
+        u16::from(self.ram[usize::from(address)]) << 8 | (u16::from(self.ram[usize::from(address + 1)]))
     }
 
     /// Writes a word to memory in little endian byte order
@@ -118,5 +123,12 @@ mod tests {
         let mut b = AddressBus::new();
         b.write_word(0x0000, 0x1be3);
         assert_eq!(b.read_word(0x0000), 0x1be3);
+    }
+
+    #[test]
+    fn rw_le_word() {
+        let mut b = AddressBus::new();
+        b.write_word(0x0000, 0x1be3);
+        assert_eq!(b.read_le_word(0x0000), 0xe31b);
     }
 }
