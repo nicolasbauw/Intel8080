@@ -3,6 +3,7 @@
 ### 0.11.0
 
 - FIX debug output for RST instructions
+- Disassembler displays machine code with operand
 
 ### 0.10.0
 
