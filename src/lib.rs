@@ -1163,14 +1163,14 @@ impl CPU {
         if self.debug
         { match opcode {
             0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF => {
-                println!("opcode : RST");
-                println!("--------------------------------------------------------------------------------------------------------");
+                println!("RST");
+                println!("-------------------------------------------------------------------------------------------------");
             },
             _ => {
                 println!("{}", self.dasm(pc));
                 println!("PC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
                 println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
-                println!("--------------------------------------------------------------------------------------------------------");
+                println!("-------------------------------------------------------------------------------------------------");
                 }
             }
         }
@@ -3226,7 +3226,7 @@ mod instructions {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x35);
         c.registers.set_hl(0x3412);
-        assert_eq!(c.dasm(0), String::from("DCR (HL)"));
+        assert_eq!(c.dasm(0), String::from("35        DCR (HL)"));
     }
 
     #[test]
@@ -3234,6 +3234,6 @@ mod instructions {
         let mut c = CPU::new();
         c.bus.write_byte(0x0000, 0x3E);
         c.bus.write_byte(0x0001, 0x55);
-        assert_eq!(c.dasm(0), String::from("MVI A,$55"));
+        assert_eq!(c.dasm(0), String::from("3E 55     MVI A,$55"));
     }
 }
