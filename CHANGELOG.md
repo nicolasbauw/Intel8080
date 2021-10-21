@@ -4,6 +4,7 @@
 
 - FIX debug output for RST instructions
 - Disassembler displays machine code with operand
+- 2021 edition
 
 ### 0.10.0
 
