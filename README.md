@@ -63,6 +63,13 @@ loop {
 }
 ```
 
+Debug mode outputs CPU state and disassembled code to stdout after each execute():
+```
+3E 0f     MVI A,$0f
+PC : 0x0003	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
+B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00 ...
+```
+
 Includes a "cpmloader" which loads and executes basic CP/M programs:
 
 ```
