@@ -134,7 +134,7 @@ pub struct CPU {
     pub debug: bool,
     /// Defaults to 1/60FPS = 16ms
     pub slice_duration: u32,
-    /// Defaults to 35000 cycles per 16ms slice (2.1 Mhz)
+    /// Defaults to 35000 cycles per 16ms slice (2.1 Mhz).
     /// cycles = clock speed in Hz / required frames-per-second
     pub slice_max_cycles: u32,
     slice_current_cycles: u32,
@@ -378,6 +378,7 @@ impl CPU {
         self.bus.write_word(self.sp , self.pc);
     }
 
+    /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default.
     pub fn execute_slice(&mut self) {
         if self.slice_current_cycles > self.slice_max_cycles {
             self.slice_current_cycles = 0;
@@ -394,7 +395,7 @@ impl CPU {
         self.slice_current_cycles += u32::from(cycles);
     }
 
-    /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles.
+    /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles. No execution speed limit.
     pub fn execute(&mut self) -> u8 {
         if self.halt { return 0 };
         
