@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.12.0
+
+- Optional execution speed limitation
+
 ### 0.11.0
 
 - FIX debug output for RST instructions
