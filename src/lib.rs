@@ -383,11 +383,9 @@ impl CPU {
             self.slice_current_cycles = 0;
             // d = time taken to execute the slice_max_cycles
             let d = self.slice_start_time.elapsed().unwrap();
-            let sleep_time = self.slice_duration - (d.as_millis() as u32);
-            if self.debug {
-                println!("Execution time : {:?}", d);
-                println!("Sleep time : {:?}", sleep_time);
-            }
+            let sleep_time = self.slice_duration.saturating_sub(d.as_millis() as u32);
+            /*println!("Execution time : {:?}", d);
+            println!("Sleep time : {:?}", sleep_time);*/
             thread::sleep(Duration::from_millis(u64::from(sleep_time)));
             self.slice_start_time = SystemTime::now();
         }
