@@ -93,6 +93,7 @@ mod dasm;
 use crate::register::Registers;
 use crate::memory::AddressBus;
 use crate::flags::Flags;
+use std::{time::Duration, time::SystemTime, thread};
 
 const CYCLES: [u8; 256] = [
     4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,
@@ -130,7 +131,14 @@ pub struct CPU {
     /// PC : 0x0003	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
     /// B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00 ...
     /// ```
-    pub debug: bool
+    pub debug: bool,
+    /// Defaults to 1/60FPS = 16ms
+    pub slice_duration: u32,
+    /// Defaults to 35000 cycles per 16ms slice (2.1 Mhz)
+    /// cycles = clock speed in Hz / required frames-per-second
+    pub slice_max_cycles: u32,
+    slice_current_cycles: u32,
+    slice_start_time: SystemTime,
 }
 
 impl CPU {
@@ -145,7 +153,11 @@ impl CPU {
             halt: false,
             int: (false, 0),
             inte: false,
-            debug: false
+            debug: false,
+            slice_duration: 16,
+            slice_max_cycles: 35000,
+            slice_current_cycles: 0,
+            slice_start_time: SystemTime::now(),
         }
     }
 
@@ -364,6 +376,23 @@ impl CPU {
     fn interrupt_stack_push(&mut self) {
         self.sp = self.sp.wrapping_sub(2);
         self.bus.write_word(self.sp , self.pc);
+    }
+
+    pub fn execute_slice(&mut self) {
+        if self.slice_current_cycles > self.slice_max_cycles {
+            self.slice_current_cycles = 0;
+            // d = time taken to execute the slice_max_cycles
+            let d = self.slice_start_time.elapsed().unwrap();
+            let sleep_time = self.slice_duration - (d.as_millis() as u32);
+            if self.debug {
+                println!("Execution time : {:?}", d);
+                println!("Sleep time : {:?}", sleep_time);
+            }
+            thread::sleep(Duration::from_millis(u64::from(sleep_time)));
+            self.slice_start_time = SystemTime::now();
+        }
+        let cycles = self.execute();
+        self.slice_current_cycles += u32::from(cycles);
     }
 
     /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles.
