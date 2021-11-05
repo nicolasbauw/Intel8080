@@ -3,6 +3,7 @@
 ### 0.12.0
 
 - Optional execution speed limitation
+- Execute functions return a u32
 
 ### 0.11.0
 
