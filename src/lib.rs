@@ -378,8 +378,8 @@ impl CPU {
         self.bus.write_word(self.sp , self.pc);
     }
 
-    /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default.
-    pub fn execute_slice(&mut self) {
+    /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default. Returns the number of consumed clock cycles.
+    pub fn execute_slice(&mut self) -> u32 {
         if self.slice_current_cycles > self.slice_max_cycles {
             self.slice_current_cycles = 0;
             // d = time taken to execute the slice_max_cycles
@@ -392,11 +392,12 @@ impl CPU {
             }
         }
         let cycles = self.execute();
-        self.slice_current_cycles += u32::from(cycles);
+        self.slice_current_cycles += cycles;
+        cycles
     }
 
     /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles. No execution speed limit.
-    pub fn execute(&mut self) -> u8 {
+    pub fn execute(&mut self) -> u32 {
         if self.halt { return 0 };
         
         // Saving current PC for debug output
@@ -411,7 +412,7 @@ impl CPU {
             }
         };
 
-        let mut cycles = CYCLES[opcode as usize];
+        let mut cycles = CYCLES[opcode as usize].into();
         
         // if opcode is RST : is it called via an interrupt, or via the program ?
         let direct_rst = if self.inte && self.int.0 { false } else { true };
