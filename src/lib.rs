@@ -93,7 +93,7 @@ mod dasm;
 use crate::register::Registers;
 use crate::memory::AddressBus;
 use crate::flags::Flags;
-use std::{time::Duration, time::SystemTime, thread};
+use std::{time::Duration, time::SystemTime};
 
 const CYCLES: [u8; 256] = [
     4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,
@@ -387,7 +387,13 @@ impl CPU {
                 let sleep_time = self.slice_duration.saturating_sub(d.as_millis() as u32);
                 /*println!("Execution time : {:?}", d);
                 println!("Sleep time : {:?}", sleep_time);*/
-                thread::sleep(Duration::from_millis(u64::from(sleep_time)));
+
+                #[cfg(windows)]
+                spin_sleep::sleep(Duration::from_millis(u64::from(sleep_time)));
+
+                #[cfg(not(windows))]
+                std::thread::sleep(Duration::from_millis(u64::from(sleep_time)));
+
                 self.slice_start_time = SystemTime::now();
             }
         }
