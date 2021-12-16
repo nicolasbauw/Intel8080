@@ -114,6 +114,11 @@ const CYCLES: [u8; 256] = [
     5, 10, 10, 4, 11, 11, 7, 11, 5, 5, 10, 4, 11, 17, 7, 11,
 ];
 
+pub struct Debug {
+    pub switch: bool,
+    pub string: String,
+}
+
 pub struct CPU {
     pub registers: Registers,
     pub flags: Flags,
@@ -131,7 +136,7 @@ pub struct CPU {
     /// PC : 0x0003	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
     /// B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00 ...
     /// ```
-    pub debug: bool,
+    pub debug: Debug,
     /// Defaults to 1/60FPS = 16ms
     pub slice_duration: u32,
     /// Defaults to 35000 cycles per 16ms slice (2.1 Mhz).
@@ -139,6 +144,15 @@ pub struct CPU {
     pub slice_max_cycles: u32,
     slice_current_cycles: u32,
     slice_start_time: SystemTime,
+}
+
+impl Debug {
+    pub fn new() -> Debug {
+        Debug {
+            switch: false,
+            string: String::new(),
+        }
+    }
 }
 
 impl CPU {
@@ -153,7 +167,7 @@ impl CPU {
             halt: false,
             int: (false, 0),
             inte: false,
-            debug: false,
+            debug: Debug::new(),
             slice_duration: 16,
             slice_max_cycles: 35000,
             slice_current_cycles: 0,
@@ -1191,30 +1205,22 @@ impl CPU {
             // IN Input
             0xDB => {
                 self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1));
-                if self.debug { println!("IN : device : {}, value : {:#04x}", usize::from(self.bus.read_byte(self.pc+1)), self.registers.a); }
+                if self.debug.switch { println!("IN : device : {}, value : {:#04x}", usize::from(self.bus.read_byte(self.pc+1)), self.registers.a); }
             },
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
                 self.bus.set_io_out(device, self.registers.a);
-                if self.debug { println!("OUT : device : {}, value : {:#04x}", device, self.registers.a); }
+                if self.debug.switch { println!("OUT : device : {}, value : {:#04x}", device, self.registers.a); }
             },
 
             _ => {}
         }
 
-        if self.debug
-        { match opcode {
-            0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF => {
-                println!("RST");
-                println!("-------------------------------------------------------------------------------------------------");
-            },
-            _ => {
-                println!("{}", self.dasm(pc));
-                println!("PC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}", pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32);
-                println!("B : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp));
-                println!("-------------------------------------------------------------------------------------------------");
-                }
+        if self.debug.switch
+        { self.debug.string = match opcode {
+            0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF =>  String::from("RST"),
+            _ => format!("{}\nPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}\nB : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.dasm(pc), pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32, self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp)),
             }
         }
 
