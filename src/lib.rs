@@ -1205,13 +1205,11 @@ impl CPU {
             // IN Input
             0xDB => {
                 self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1));
-                if self.debug.switch { println!("IN : device : {}, value : {:#04x}", usize::from(self.bus.read_byte(self.pc+1)), self.registers.a); }
             },
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
                 self.bus.set_io_out(device, self.registers.a);
-                if self.debug.switch { println!("OUT : device : {}, value : {:#04x}", device, self.registers.a); }
             },
 
             _ => {}
@@ -1220,7 +1218,7 @@ impl CPU {
         if self.debug.switch
         { self.debug.string = match opcode {
             0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF =>  String::from("RST"),
-            _ => format!("{}\nPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}\nB : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}", self.dasm(pc), pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32, self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp)),
+            _ => format!("{}\nPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}\nB : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}\n", self.dasm(pc), pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32, self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp)),
             }
         }
 
