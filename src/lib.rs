@@ -63,7 +63,14 @@
 //! }
 //! ```
 //! 
-//! Debug mode outputs CPU state and disassembled code to stdout after each execute():
+//! Starting with 0.13.0, a new field has been added to define a read-only area in the address space:
+//! ```rust
+//! use intel8080::{CPU, memory::ROMSpace};
+//! let mut c = CPU::new();
+//! c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+//! ```
+//! 
+//! Debug mode outputs CPU state and disassembled code to an internal string after each execute():
 //! ```text
 //! 3E 0f     MVI A,$0f
 //! PC : 0x0003	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0
@@ -91,7 +98,7 @@ pub mod bit;
 mod dasm;
 
 use crate::register::Registers;
-use crate::memory::AddressBus;
+use crate::memory::{AddressBus};
 use crate::flags::Flags;
 use std::{time::Duration, time::SystemTime};
 
@@ -115,7 +122,9 @@ const CYCLES: [u8; 256] = [
 ];
 
 pub struct Debug {
+    /// Enables / Disables the debug string generation
     pub switch: bool,
+    /// The debug information string
     pub string: String,
 }
 
@@ -1242,6 +1251,7 @@ impl CPU {
 #[cfg(test)]
 mod instructions {
     use super::*;
+    use crate::memory::ROMSpace;
     #[test]
     fn ldax_b() {
         let mut c = CPU::new();
@@ -3282,5 +3292,25 @@ mod instructions {
         c.bus.write_byte(0x0000, 0x3E);
         c.bus.write_byte(0x0001, 0x55);
         assert_eq!(c.dasm(0), String::from("3E 55     MVI A,$55"));
+    }
+
+    #[test]
+    fn rom_space_byte() {
+        let mut c = CPU::new();
+        c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+        c.bus.write_byte(0xffef, 0x3E);
+        c.bus.write_byte(0xfff0, 0x55);
+        assert_eq!(c.bus.read_byte(0xffef), 0x3e);
+        assert_eq!(c.bus.read_byte(0xfff0), 0);
+    }
+
+    #[test]
+    fn rom_space_word() {
+        let mut c = CPU::new();
+        c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+        c.bus.write_word(0xffee, 0x3E3E);
+        c.bus.write_word(0xfff0, 0x5566);
+        assert_eq!(c.bus.read_word(0xffee), 0x3e3e);
+        assert_eq!(c.bus.read_byte(0xfff0), 0);
     }
 }
