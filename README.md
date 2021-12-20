@@ -63,7 +63,14 @@ loop {
 }
 ```
 
-Debug mode outputs CPU state and disassembled code to stdout after each execute():
+Starting with 0.13.0, a field has been added to define a read-only area in the address space:
+```rust
+use intel8080::{CPU, memory::ROMSpace};
+let mut c = CPU::new();
+c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+```
+
+Debug mode outputs CPU state and disassembled code to an internal string after each execute():
 ```
 3E 0f     MVI A,$0f
 PC : 0x0003	SP : 0xff00	S : 0	Z : 0	A : 0	P : 0	C : 0

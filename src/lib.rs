@@ -63,7 +63,7 @@
 //! }
 //! ```
 //! 
-//! Starting with 0.13.0, a new field has been added to define a read-only area in the address space:
+//! Starting with 0.13.0, a field has been added to define a read-only area in the address space:
 //! ```rust
 //! use intel8080::{CPU, memory::ROMSpace};
 //! let mut c = CPU::new();

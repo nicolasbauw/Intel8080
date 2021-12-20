@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.13.0
+
+- debug information is no longer displayed on stdout, you can now handle it the way you want
+- you can define a read-only area in address space
+
 ### 0.12.0
 
 - Optional execution speed limitation
