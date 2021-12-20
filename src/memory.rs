@@ -2,7 +2,14 @@ use std::{fs::File, io::prelude::*,};
 
 /// The AddressBus struct is hosting the 8080 memory map and the pending IO operations for outer handling.
 pub struct AddressBus {
-    ram: Vec<u8>,
+    address_space: Vec<u8>,
+    /// This field is used to define a read-only area in the address space.
+    /// ```rust
+    /// use intel8080::{CPU, memory::ROMSpace};
+    /// let mut c = CPU::new();
+    /// c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+    /// ```
+    pub rom_space: Option<ROMSpace>,
     io_in: Vec<u8>,
     pending_io : PendingIO,
 }
@@ -27,11 +34,18 @@ pub struct PendingIO {
     pub value: u8,
 }
 
+/// Start and end addresses of read-only (ROM) area.
+pub struct ROMSpace {
+    pub start: u16,
+    pub end: u16,
+}
+
 impl AddressBus {
     #[doc(hidden)]
     pub fn new() -> AddressBus {
         AddressBus {
-            ram: vec![0; 65536],
+            address_space: vec![0; 65536],
+            rom_space: None,
             io_in: vec![0; 256],
             pending_io: PendingIO{
                 kind: IO::CLR,
@@ -43,28 +57,32 @@ impl AddressBus {
 
     /// Reads a byte from memory
     pub fn read_byte(&self, address: u16) -> u8 {
-        self.ram[usize::from(address)]
+        self.address_space[usize::from(address)]
     }
 
     /// Writes a byte to memory
     pub fn write_byte(&mut self, address: u16, data: u8) {
-        self.ram[usize::from(address)] = data;
+        // if rom space is declared, and write operation is requested in rom area : we exit
+        if self.rom_space.is_some() && address >= self.rom_space.as_ref().unwrap().start && address <= self.rom_space.as_ref().unwrap().end { return };
+        self.address_space[usize::from(address)] = data;
     }
 
     /// Reads a word stored in memory in little endian byte order, returns this word in BE byte order
     pub fn read_word(&self, address: u16) -> u16 {
-        u16::from(self.ram[usize::from(address)]) | (u16::from(self.ram[usize::from(address + 1)]) << 8)
+        u16::from(self.address_space[usize::from(address)]) | (u16::from(self.address_space[usize::from(address + 1)]) << 8)
     }
 
     // Reads a word stored in memory in little endian byte order, returns this word in LE byte order
     pub fn read_le_word(&self, address: u16) -> u16 {
-        u16::from(self.ram[usize::from(address)]) << 8 | (u16::from(self.ram[usize::from(address + 1)]))
+        u16::from(self.address_space[usize::from(address)]) << 8 | (u16::from(self.address_space[usize::from(address + 1)]))
     }
 
     /// Writes a word to memory in little endian byte order
     pub fn write_word(&mut self, address: u16, data: u16) {
-        self.ram[usize::from(address)] = (data & 0xFF) as u8;
-        self.ram[usize::from(address + 1)] = (data >> 8) as u8;
+        // if rom space is declared, and write operation is requested in rom area : we exit
+        if self.rom_space.is_some() && address >= self.rom_space.as_ref().unwrap().start && address <= self.rom_space.as_ref().unwrap().end { return };
+        self.address_space[usize::from(address)] = (data & 0xFF) as u8;
+        self.address_space[usize::from(address + 1)] = (data >> 8) as u8;
     }
 
     /// Loads binary data from disk into memory at $0000 + offset
@@ -72,7 +90,7 @@ impl AddressBus {
         let mut f = File::open(file)?;
         let mut buf = Vec::new();
         f.read_to_end(&mut buf)?;
-        self.ram[org as usize..(buf.len() + org as usize)].clone_from_slice(&buf[..]);
+        self.address_space[org as usize..(buf.len() + org as usize)].clone_from_slice(&buf[..]);
         Ok(())
     }
 
