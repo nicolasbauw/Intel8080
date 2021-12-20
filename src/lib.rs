@@ -3300,8 +3300,12 @@ mod instructions {
         c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
         c.bus.write_byte(0xffef, 0x3E);
         c.bus.write_byte(0xfff0, 0x55);
+        c.bus.write_byte(0xffff, 0x55);
+        c.bus.write_byte(0x0000, 0x55);
         assert_eq!(c.bus.read_byte(0xffef), 0x3e);
         assert_eq!(c.bus.read_byte(0xfff0), 0);
+        assert_eq!(c.bus.read_byte(0xffff), 0);
+        assert_eq!(c.bus.read_byte(0x0000), 0x55);
     }
 
     #[test]
