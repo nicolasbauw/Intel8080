@@ -90,11 +90,9 @@
 
 #[doc(hidden)]
 pub mod register;
-#[doc(hidden)]
-pub mod flags;
 pub mod memory;
-#[doc(hidden)]
-pub mod bit;
+mod flags;
+mod bit;
 mod dasm;
 
 use crate::register::Registers;
