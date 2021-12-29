@@ -119,6 +119,9 @@ const CYCLES: [u8; 256] = [
     5, 10, 10, 4, 11, 11, 7, 11, 5, 5, 10, 4, 11, 17, 7, 11,
 ];
 
+// Optional callback functions for IN and OUT instructions must have this signature
+type Callback = fn(&mut CPU, u8, u8) -> Option<u8>;
+
 pub struct Debug {
     /// Enables / Disables the debug string generation
     pub switch: bool,
@@ -137,6 +140,8 @@ pub struct CPU {
     pub int: (bool, u8),
     /// Interrupt enable bit
     pub inte: bool,
+    out_callback: Option<Callback>,
+    in_callback: Option<Callback>,
     /// Outputs CPU state and disassembled code to stdout after each execute()
     /// ```text
     /// 3E 0f     MVI A,$0f
@@ -174,12 +179,24 @@ impl CPU {
             halt: false,
             int: (false, 0),
             inte: false,
+            out_callback: None,
+            in_callback: None,
             debug: Debug::new(),
             slice_duration: 16,
             slice_max_cycles: 35000,
             slice_current_cycles: 0,
             slice_start_time: SystemTime::now(),
         }
+    }
+
+    /// Sets IO OUT callback function used by the OUT instruction.
+    pub fn set_cb_out(&mut self, cb: Callback) {
+        self.out_callback = Some(cb);
+    }
+
+    /// Sets IO IN callback function used by the IN instruction.
+    pub fn set_cb_in(&mut self, cb: Callback) {
+        self.in_callback = Some(cb);
     }
 
     // Increment functions
@@ -1211,12 +1228,21 @@ impl CPU {
             /* Input / output instructions */
             // IN Input
             0xDB => {
-                self.registers.a = self.bus.get_io_in(self.bus.read_byte(self.pc+1));
+                let device = self.bus.read_byte(self.pc+1);
+                match self.in_callback {
+                    None => { self.registers.a = self.bus.get_io_in(device); },
+                    Some(cb) => {
+                        if let Some(a) = cb(self, device, 0) { self.registers.a = a; }
+                    }
+                };
             },
             // OUT Output
             0xD3 => {
                 let device = self.bus.read_byte(self.pc+1);
-                self.bus.set_io_out(device, self.registers.a);
+                match self.out_callback {
+                    None => { self.bus.set_io_out(device, self.registers.a); },
+                    Some(cb) => { cb(self, device, self.registers.a); }
+                }
             },
 
             _ => {}
