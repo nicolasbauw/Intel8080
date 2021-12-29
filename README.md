@@ -63,7 +63,17 @@ loop {
 }
 ```
 
-Starting with 0.13.0, a field has been added to define a read-only area in the address space:
+The I/O system has been improved in 0.14.0, you can now use callbacks:
+```
+c.set_cb_out(out_callback);
+...
+fn out_callback(c: &mut CPU, device: u8, data: u8) -> Option<u8> {
+    your callback code here
+}
+```
+The 0.8.0 I/O system still works if no callback is set.
+
+In version 0.13.0, a field has been added to define a read-only area in the address space:
 ```rust
 use intel8080::{CPU, memory::ROMSpace};
 let mut c = CPU::new();

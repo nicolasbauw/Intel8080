@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.14.0
+
+- You can set a callback for IN and OUT. The 0.8.0 I/O system still works if no callback is set.
+
 ### 0.13.0
 
 - debug information is no longer displayed on stdout, you can now handle it the way you want
