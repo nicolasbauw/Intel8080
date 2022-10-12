@@ -348,6 +348,21 @@ impl CPU {
         self.bus.write_word(self.sp , self.pc);
     }
 
+    // IN : from peripherals to CPU
+    fn get_io(&mut self, port: u8) -> u8 {
+        if let Ok((device, data)) = self.bus.io.1.try_recv() {
+            if device == port { return data }
+        }
+        return 0
+    }
+
+    // OUT : from CPU to peripherals
+    fn set_io(&mut self, port: u8, data: u8) {
+        if let Err(_) =  self.bus.io.0.send_timeout((port,data), Duration::from_nanos(500)) {
+            eprintln!("No peripheral set to receive data ! ({:#04X})", port);
+        }
+    }
+
     /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default. Returns the number of consumed clock cycles.
     pub fn execute_slice(&mut self) -> u32 {
         if self.slice_current_cycles > self.slice_max_cycles {
@@ -1160,14 +1175,14 @@ impl CPU {
             /* Input / output instructions */
             // IN Input
             0xDB => {
-                let device = self.bus.read_byte(self.pc+1);
-                self.registers.a = self.bus.get_io_in(device);
+                let port = self.bus.read_byte(self.pc + 1);
+                self.registers.a = self.get_io(port);
             },
-            
+
             // OUT Output
             0xD3 => {
-                let device = self.bus.read_byte(self.pc+1);
-                self.bus.set_io_out(device, self.registers.a);
+                let port = self.bus.read_byte(self.pc + 1);
+                self.set_io(port, self.registers.a);
             },
 
             _ => {}
