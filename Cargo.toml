@@ -1,6 +1,6 @@
 [package]
 name = "intel8080"
-version = "0.14.0"
+version = "0.15.0"
 edition = "2021"
 authors = ["Nicolas BAUW <nbauw@hotmail.com>"]
 description = "Yet another Intel 8080 Emulator."
@@ -14,6 +14,7 @@ exclude = ["/bin"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+crossbeam-channel = "0.5.6"
 
 [target.'cfg(windows)'.dependencies]
 spin_sleep = "1.0.0"
