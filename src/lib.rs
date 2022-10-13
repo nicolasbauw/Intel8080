@@ -71,6 +71,8 @@ const CYCLES: [u8; 256] = [
 pub struct Debug {
     /// Enables / Disables the debug string generation
     pub switch: bool,
+    /// Debug for IO messages
+    pub io: bool,
     /// The debug information string
     pub string: String,
 }
@@ -106,6 +108,7 @@ impl Debug {
     pub fn new() -> Debug {
         Debug {
             switch: false,
+            io: false,
             string: String::new(),
         }
     }
@@ -351,6 +354,7 @@ impl CPU {
     // IN : from peripherals to CPU
     fn get_io(&mut self, port: u8) -> u8 {
         if let Ok((device, data)) = self.bus.io.1.try_recv() {
+            if self.debug.io { println!("IO Message : data {:#04X} from device {:#04X}", data, device) }
             if device == port { return data }
         }
         return 0
@@ -358,6 +362,7 @@ impl CPU {
 
     // OUT : from CPU to peripherals
     fn set_io(&mut self, port: u8, data: u8) {
+        if self.debug.io { println!("IO Message : data {:#04X} for device {:#04X}", data, port) }
         if let Err(_) =  self.bus.io.0.send_timeout((port,data), Duration::from_nanos(500)) {
             eprintln!("No peripheral set to receive data ! ({:#04X})", port);
         }
