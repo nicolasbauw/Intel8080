@@ -25,61 +25,6 @@ loop {
 }
 ```
 
-You can load assembled programs from disk to memory:
-```rust
-c.pc = 0x0100;                                      // sets pc to $100
-c.bus.load_bin("bin/loop.bin", 0x100).unwrap();     // loads file at address $100
-loop {
-    c.execute();
-    if c.pc == 0x0000 { break }
-}
-```
-
-It's easy to create an interrupt request:
-```rust
-c.bus.load_bin("bin/interrupt.bin", 0).unwrap();
-c.int = (true, 0xcf);               // we create an interrupt request : flag set to true
-loop {                              // and its associated RST command
-    c.execute();                    // test program is designed to never leave a loop
-    if c.pc == 0x0000 { break }     // if it does not execute the interrupt routine
-}
-```
-
-Starting with 0.8.0, a more stabilized I/O system:
-```rust
-c.bus.write_byte(0x0000, 0x3e);     // MVI A,$55
-c.bus.write_byte(0x0001, 0x55);
-c.bus.write_byte(0x0002, 0xd3);     // OUT 1
-c.bus.write_byte(0x0003, 0x01);
-loop {
-    c.execute();
-    // Data sent from CPU to device 1 (OUT) ? let's handle it
-    if let Some(v) = c.bus.get_io_out(1) {
-        assert_eq!(v, 0x55);
-        // OUT handled ? let's clear it
-        c.bus.clear_io_out();
-    }
-    if c.pc == 0x0004 { break }
-}
-```
-
-The I/O system has been improved in 0.14.0, you can now use callbacks:
-```
-c.set_cb_out(out_callback);
-...
-fn out_callback(c: &mut CPU, device: u8, data: u8) -> Option<u8> {
-    your callback code here
-}
-```
-The 0.8.0 I/O system still works if no callback is set.
-
-In version 0.13.0, a field has been added to define a read-only area in the address space:
-```rust
-use intel8080::{CPU, memory::ROMSpace};
-let mut c = CPU::new();
-c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
-```
-
 Debug mode outputs CPU state and disassembled code to an internal string after each execute():
 ```
 3E 0f     MVI A,$0f
