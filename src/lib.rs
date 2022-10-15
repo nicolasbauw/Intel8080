@@ -96,11 +96,11 @@ pub struct CPU {
     /// B : 0x00	C : 0x00	D : 0x00	E : 0x00	H : 0x00	L : 0x00 ...
     /// ```
     pub debug: Debug,
-    /// Defaults to 1/60FPS = 16ms
-    pub slice_duration: u32,
-    /// Defaults to 35000 cycles per 16ms slice (2.1 Mhz).
-    /// cycles = clock speed in Hz / required frames-per-second
-    pub slice_max_cycles: u32,
+    // Defaults to 1/60FPS = 16ms
+    slice_duration: u32,
+    // Defaults to 35000 cycles per 16ms slice (2.1 Mhz).
+    // cycles = clock speed in Hz / required frames-per-second
+    slice_max_cycles: u32,
     slice_current_cycles: u32,
     slice_start_time: SystemTime,
 }
@@ -369,6 +369,17 @@ impl CPU {
         if let Err(_) =  self.bus.io_out.0.send_timeout((port,data), Duration::from_millis(16)) {
             eprintln!("No peripheral set to receive data ! ({:#04X})", port);
         }
+    }
+
+    /// Sets CPU frequency (MHz)
+    /// ```rust
+    /// use intel8080::CPU;
+    /// let mut c = CPU::new();
+    /// c.set_freq(1.7);            // CPU will run at 1.7 Mhz
+    /// ```
+    pub fn set_freq(&mut self, f: f32) {
+        let cycles = (f * 1000000 as f32) / (1000/self.slice_duration) as f32;
+        self.slice_max_cycles = cycles as u32;
     }
 
     /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default. Returns the number of consumed clock cycles.
