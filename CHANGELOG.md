@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.15.0
+
+- BREAKING Reworked the I/O system which is now based on channels. The old IO system won't work any more.
+- NEW same channel approach for MMIO devices
+
 ### 0.14.0
 
 - You can set a callback for IN and OUT. The 0.8.0 I/O system still works if no callback is set.
