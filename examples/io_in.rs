@@ -16,7 +16,7 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
     c.bus.load_bin("bin/in_a.bin", 0)?;
 
     // io.0 is the sender, io.1 is the receiver. Used to send / receive a (device, data) tuple to / from a peripheral.
-    let io_sender1 = c.bus.io.0.clone();
+    let io_sender1 = c.bus.io_in.0.clone();
 
     // In this example periph is the entry function that simulates a peripheral. It runs in a separate thread.
     thread::spawn(move || {

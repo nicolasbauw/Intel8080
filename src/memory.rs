@@ -8,8 +8,11 @@ pub struct AddressBus {
     pub mmio_read: (crossbeam_channel::Sender<(u16, Vec<u8>)>, crossbeam_channel::Receiver<(u16, Vec<u8>)>),
     /// This channel is used for RAM writing by MMIO peripherals
     pub mmio_write: (crossbeam_channel::Sender<(u16, u8)>, crossbeam_channel::Receiver<(u16, u8)>),
-    /// This channel is used for non memory-mapped IO
-    pub io: (crossbeam_channel::Sender<(u8, u8)>, crossbeam_channel::Receiver<(u8, u8)>)
+    pub io_out: (crossbeam_channel::Sender<(u8, u8)>, crossbeam_channel::Receiver<(u8, u8)>),
+    /// This channel is used for non memory-mapped IO (IN : peripherals -> CPU)
+    pub io_in: (crossbeam_channel::Sender<(u8, u8)>, crossbeam_channel::Receiver<(u8, u8)>),
+    /// This channel is used by the IN instruction to ask a peripheral to send a message
+    pub io_req: (crossbeam_channel::Sender<u8>, crossbeam_channel::Receiver<u8>)
 }
 
 /// Start and end addresses of read-only (ROM) area.
@@ -26,7 +29,9 @@ impl AddressBus {
             rom_space: None,
             mmio_read: crossbeam_channel::bounded(1),
             mmio_write: crossbeam_channel::bounded(1),
-            io: crossbeam_channel::bounded(1),
+            io_out: crossbeam_channel::bounded(1),
+            io_in: crossbeam_channel::bounded(1),
+            io_req: crossbeam_channel::bounded(1),
         }
     }
 
