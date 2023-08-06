@@ -14,7 +14,6 @@ exclude = ["/bin"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-crossbeam-channel = "0.5.6"
 
 [target.'cfg(windows)'.dependencies]
 spin_sleep = "1.0.0"

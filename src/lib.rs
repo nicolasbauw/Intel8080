@@ -40,13 +40,12 @@
 #[doc(hidden)]
 pub mod register;
 pub mod memory;
-pub use crossbeam_channel;
 mod flags;
 mod bit;
 mod dasm;
 
 use crate::register::Registers;
-use crate::memory::{AddressBus};
+use crate::memory::AddressBus;
 use crate::flags::Flags;
 use std::{time::Duration, time::SystemTime};
 
@@ -350,25 +349,6 @@ impl CPU {
     fn interrupt_stack_push(&mut self) {
         self.sp = self.sp.wrapping_sub(2);
         self.bus.write_word(self.sp , self.pc);
-    }
-
-    // IN : from peripherals to CPU
-    fn get_io(&mut self, port: u8) -> u8 {
-        if let Ok(_) = self.bus.io_req.0.send_timeout(port, Duration::from_millis(16)) {
-            if let Ok((device, data)) = self.bus.io_in.1.recv_timeout(Duration::from_millis(16)) {
-                if self.debug.io { println!("IO Message : data {:#04X} from device {:#04X}", data, device) }
-                if device == port { return data }
-            }
-        }
-        return 0
-    }
-
-    // OUT : from CPU to peripherals
-    fn set_io(&mut self, port: u8, data: u8) {
-        if self.debug.io { println!("IO Message : data {:#04X} for device {:#04X}", data, port) }
-        if let Err(_) =  self.bus.io_out.0.send_timeout((port,data), Duration::from_millis(16)) {
-            eprintln!("No peripheral set to receive data ! ({:#04X})", port);
-        }
     }
 
     /// Sets CPU frequency (MHz)
@@ -1194,14 +1174,12 @@ impl CPU {
             /* Input / output instructions */
             // IN Input
             0xDB => {
-                let port = self.bus.read_byte(self.pc + 1);
-                self.registers.a = self.get_io(port);
+                // To implement yourself
             },
 
             // OUT Output
             0xD3 => {
-                let port = self.bus.read_byte(self.pc + 1);
-                self.set_io(port, self.registers.a);
+                // To implement yourself
             },
 
             _ => {}
