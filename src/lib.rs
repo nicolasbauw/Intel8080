@@ -45,7 +45,7 @@ mod bit;
 mod dasm;
 
 use crate::register::Registers;
-use crate::memory::AddressBus;
+use crate::memory::Bus;
 use crate::flags::Flags;
 use std::time::SystemTime;
 
@@ -82,7 +82,7 @@ pub struct CPU {
     pub flags: Flags,
     pub pc: u16,
     pub sp: u16,
-    pub bus: AddressBus,
+    pub bus: Bus,
     pub halt: bool,
     /// Interrupt request : true / false, instruction to execute (normally a RST command)
     pub int: (bool, u8),
@@ -122,7 +122,7 @@ impl CPU {
             flags: Flags::new(),
             pc: 0,
             sp: 0,
-            bus: AddressBus::new(),
+            bus: Bus::new(),
             halt: false,
             int: (false, 0),
             inte: false,

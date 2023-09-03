@@ -1,7 +1,7 @@
 use std::{fs::File, io::prelude::*,};
 
-/// The AddressBus struct is hosting the 8080 memory map and the pending IO operations for outer handling.
-pub struct AddressBus {
+/// The Bus struct is hosting the 8080 memory map and the pending IO operations for outer handling.
+pub struct Bus {
     address_space: Vec<u8>,
     rom_space: Option<ROMSpace>,
 }
@@ -12,10 +12,10 @@ pub struct ROMSpace {
     pub end: u16,
 }
 
-impl AddressBus {
+impl Bus {
     #[doc(hidden)]
-    pub fn new() -> AddressBus {
-        AddressBus {
+    pub fn new() -> Bus {
+        Bus {
             address_space: vec![0; 65536],
             rom_space: None,
         }
@@ -71,21 +71,21 @@ mod tests {
     use super::*;
     #[test]
     fn rw_byte() {
-        let mut b = AddressBus::new();
+        let mut b = Bus::new();
         b.write_byte(0x0000, 0xFF);
         assert_eq!(b.read_byte(0x0000), 0xFF);
     }
 
     #[test]
     fn rw_word() {
-        let mut b = AddressBus::new();
+        let mut b = Bus::new();
         b.write_word(0x0000, 0x1be3);
         assert_eq!(b.read_word(0x0000), 0x1be3);
     }
 
     #[test]
     fn rw_le_word() {
-        let mut b = AddressBus::new();
+        let mut b = Bus::new();
         b.write_word(0x0000, 0x1be3);
         assert_eq!(b.read_le_word(0x0000), 0xe31b);
     }
