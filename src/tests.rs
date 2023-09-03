@@ -1,5 +1,4 @@
 use crate::CPU;
-use crate::memory::ROMSpace;
 
 #[test]
 fn ldax_b() {
@@ -2046,7 +2045,7 @@ fn dasm_mvi() {
 #[test]
 fn rom_space_byte() {
     let mut c = CPU::new();
-    c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+    c.bus.set_romspace(0xfff0, 0xffff);
     c.bus.write_byte(0xffef, 0x3E);
     c.bus.write_byte(0xfff0, 0x55);
     c.bus.write_byte(0xffff, 0x55);
@@ -2060,7 +2059,7 @@ fn rom_space_byte() {
 #[test]
 fn rom_space_word() {
     let mut c = CPU::new();
-    c.bus.rom_space = Some(ROMSpace{start: 0xfff0, end: 0xffff});
+    c.bus.set_romspace(0xfff0, 0xffff);
     c.bus.write_word(0xffee, 0x3E3E);
     c.bus.write_word(0xfff0, 0x5566);
     assert_eq!(c.bus.read_word(0xffee), 0x3e3e);

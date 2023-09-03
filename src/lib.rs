@@ -43,6 +43,8 @@ pub mod memory;
 mod flags;
 mod bit;
 mod dasm;
+#[cfg(test)]
+mod tests;
 
 use crate::register::Registers;
 use crate::memory::Bus;
