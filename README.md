@@ -38,7 +38,7 @@ Includes a "cpmloader" which loads and executes basic CP/M programs:
 cargo run --release --example cpmloader -- bin/helloworld.bin
 ```
 
-You can also check my [Altair 8800 / 88-SIO / teletype emulator](https://crates.io/crates/teletype).
+You can also check my [Altair 8800 / 88-SIO / teletype emulator](https://github.com/nicolasbauw/Altair8800).
 
 The provided source code examples can be assembled with [Retro Assembler](https://enginedesigns.net/retroassembler/).
 
