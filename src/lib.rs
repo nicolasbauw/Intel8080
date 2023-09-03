@@ -80,7 +80,7 @@ pub struct Debug {
 }
 
 pub struct CPU {
-    pub registers: Registers,
+    pub reg: Registers,
     pub flags: Flags,
     pub pc: u16,
     pub sp: u16,
@@ -120,7 +120,7 @@ impl CPU {
     /// Creates a new CPU instance and its 16 bits address bus.
     pub fn new() -> CPU {
         CPU {
-            registers: Registers::new(),
+            reg: Registers::new(),
             flags: Flags::new(),
             pc: 0,
             sp: 0,
@@ -158,14 +158,14 @@ impl CPU {
 
     // ADD register or memory to Accumulator
     fn add(&mut self, n: u8) {
-        let a = self.registers.a;
+        let a = self.reg.a;
         let r = a.wrapping_add(n);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (a & 0x0f) + (n & 0x0f) > 0x0f;
         self.flags.c = u16::from(a) + u16::from(n) > 0xff;
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // ADD register or memory to Accumulator with carry
@@ -174,26 +174,26 @@ impl CPU {
             false => 0,
             true => 1,
         };
-        let a = self.registers.a;
+        let a = self.reg.a;
         let r = a.wrapping_add(n).wrapping_add(c);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (a & 0x0f) + (n & 0x0f) + c > 0x0f;
         self.flags.c = u16::from(a) + u16::from(n) + u16::from(c) > 0xff;
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // SUB register or memory from Accumulator
     fn sub(&mut self, n: u8) {
-        let a = self.registers.a;
+        let a = self.reg.a;
         let r = a.wrapping_sub(n);
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (a as i8 & 0x0f) - (n as i8 & 0x0f) >= 0x00;
         self.flags.c = u16::from(a) < u16::from(n);
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // SBB register or memory from Accumulator with borrow
@@ -202,127 +202,127 @@ impl CPU {
             false => 0,
             true => 1,
         };
-        let a = self.registers.a;
+        let a = self.reg.a;
         let r = a.wrapping_sub(n.wrapping_add(c));
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.a = (a as i8 & 0x0f) - (n as i8 & 0x0f) - (c as i8) >= 0x00;
         self.flags.c = u16::from(a) < u16::from(n) + u16::from(c);
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // ANA Logical AND register or memory with accumulator
     fn ana(&mut self, n: u8) {
-        let r = self.registers.a & n;
+        let r = self.reg.a & n;
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
-        self.flags.a = (n | self.registers.a) & 0x08 != 0;
+        self.flags.a = (n | self.reg.a) & 0x08 != 0;
         self.flags.c = false;
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // XRA Logical Exclusive-OR register or memory with accumulator
     fn xra(&mut self, n: u8) {
-        let a = self.registers.a;
+        let a = self.reg.a;
         let r = a ^ n;
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.c = false;
         self.flags.a = false;
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // ORA Logical AND register or memory with accumulator
     fn ora(&mut self, n: u8) {
-        let r = self.registers.a | n;
+        let r = self.reg.a | n;
         self.flags.z = r == 0x00;
         self.flags.s = bit::get(r, 7);
         self.flags.p = r.count_ones() & 0x01 == 0x00;
         self.flags.c = false;
         self.flags.a = false;
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // CMP Compare register or memory with accumulator
     fn cmp(&mut self, n: u8) {
-        let r = self.registers.a;
+        let r = self.reg.a;
         self.sub(n);
-        self.registers.a = r;
+        self.reg.a = r;
     }
 
     // Rotate accumulator left
     fn rlc(&mut self) {
-        self.flags.c = bit::get(self.registers.a, 7);
-        self.registers.a = (self.registers.a << 1) | u8::from(self.flags.c);
+        self.flags.c = bit::get(self.reg.a, 7);
+        self.reg.a = (self.reg.a << 1) | u8::from(self.flags.c);
     }
 
     // Rotate accumulator right
     fn rrc(&mut self) {
-        self.flags.c = bit::get(self.registers.a, 0);
-        self.registers.a = if self.flags.c {0x80 | (self.registers.a >> 1) } else { self.registers.a >> 1 };
+        self.flags.c = bit::get(self.reg.a, 0);
+        self.reg.a = if self.flags.c {0x80 | (self.reg.a >> 1) } else { self.reg.a >> 1 };
     }
 
     // RAL Rotate accumulator left through carry
     fn ral(&mut self) {
         let c = self.flags.c;
-        self.flags.c = bit::get(self.registers.a, 7);
-        self.registers.a = match c {
-            true => (self.registers.a << 1) | 0x01,
-            false => self.registers.a << 1
+        self.flags.c = bit::get(self.reg.a, 7);
+        self.reg.a = match c {
+            true => (self.reg.a << 1) | 0x01,
+            false => self.reg.a << 1
         }
     }
     
     // RAR Rotate accumulator right through carry
     fn rar(&mut self) {
         let c = self.flags.c;
-        self.flags.c = bit::get(self.registers.a, 0);
-        self.registers.a = match c {
-            true => (self.registers.a >> 1) | 0x80,
-            false => self.registers.a >> 1
+        self.flags.c = bit::get(self.reg.a, 0);
+        self.reg.a = match c {
+            true => (self.reg.a >> 1) | 0x80,
+            false => self.reg.a >> 1
         }
     }
 
     // DAD Double add
     fn dad(&mut self, n: u16) {
-        let h = self.registers.get_hl();
+        let h = self.reg.get_hl();
         let r = h.wrapping_add(n);
-        self.registers.set_hl(r);
+        self.reg.set_hl(r);
         self.flags.c = u32::from(h) + u32::from(n) > 0xffff;
     }
 
-    // XCHG Exchange registers
+    // XCHG Exchange reg
     fn xchg(&mut self) {
-        let d = self.registers.d;
-        let e = self.registers.e;
-        let h = self.registers.h;
-        let l = self.registers.l;
-        self.registers.d = h;
-        self.registers.e = l;
-        self.registers.h = d;
-        self.registers.l = e;
+        let d = self.reg.d;
+        let e = self.reg.e;
+        let h = self.reg.h;
+        let l = self.reg.l;
+        self.reg.d = h;
+        self.reg.e = l;
+        self.reg.h = d;
+        self.reg.l = e;
     }
 
     // XTHL Exchange stack
     fn xthl(&mut self) {
         let pointed_by_sp = self.bus.read_word(self.sp);
-        let hl = self.registers.get_hl();
+        let hl = self.reg.get_hl();
         self.bus.write_word(self.sp, hl);
-        self.registers.set_hl(pointed_by_sp);
+        self.reg.set_hl(pointed_by_sp);
     }
 
     // Decimal adjust accumulator
     fn daa(&mut self) {
         let mut inc_a: u8 = 0;
         let mut c = self.flags.c;
-        let lsb = self.registers.a & 0x0F;
+        let lsb = self.reg.a & 0x0F;
         if (lsb > 9) || self.flags.a {
             inc_a += 0x06;
         }
 
-        let msb = self.registers.a >> 4;
+        let msb = self.reg.a >> 4;
         if (msb > 9) || self.flags.c || (msb >= 9 && lsb > 9) {
             inc_a += 0x60;
             c = true;
@@ -330,9 +330,9 @@ impl CPU {
 
         self.add(inc_a);
         self.flags.c = c;
-        self.flags.z = self.registers.a == 0x00;
-        self.flags.s = bit::get(self.registers.a, 7);
-        self.flags.p = self.registers.a.count_ones() & 0x01 == 0x00;
+        self.flags.z = self.reg.a == 0x00;
+        self.flags.s = bit::get(self.reg.a, 7);
+        self.flags.p = self.reg.a.count_ones() & 0x01 == 0x00;
     }
 
     // subroutine stack push
@@ -414,35 +414,35 @@ impl CPU {
 
             /* Single register instructions */
             // INR Increment Register or Memory
-            0x04 => self.registers.b = self.inr(self.registers.b),          // INR B
-            0x0C => self.registers.c = self.inr(self.registers.c),          // INR C
-            0x14 => self.registers.d = self.inr(self.registers.d),          // INR D
-            0x1C => self.registers.e = self.inr(self.registers.e),          // INR E
-            0x24 => self.registers.h = self.inr(self.registers.h),          // INR H
-            0x2C => self.registers.l = self.inr(self.registers.l),          // INR L
-            0x3C => self.registers.a = self.inr(self.registers.a),          // INR A
+            0x04 => self.reg.b = self.inr(self.reg.b),          // INR B
+            0x0C => self.reg.c = self.inr(self.reg.c),          // INR C
+            0x14 => self.reg.d = self.inr(self.reg.d),          // INR D
+            0x1C => self.reg.e = self.inr(self.reg.e),          // INR E
+            0x24 => self.reg.h = self.inr(self.reg.h),          // INR H
+            0x2C => self.reg.l = self.inr(self.reg.l),          // INR L
+            0x3C => self.reg.a = self.inr(self.reg.a),          // INR A
             0x34 => {                                                       // INR (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let r = self.inr(self.bus.read_byte(addr));
                 self.bus.write_byte(addr, r);
             },
 
             // DCR Decrement Register or Memory
-            0x05 => self.registers.b = self.dcr(self.registers.b),          // DCR B
-            0x0D => self.registers.c = self.dcr(self.registers.c),          // DCR C
-            0x15 => self.registers.d = self.dcr(self.registers.d),          // DCR D
-            0x1D => self.registers.e = self.dcr(self.registers.e),          // DCR E
-            0x25 => self.registers.h = self.dcr(self.registers.h),          // DCR H
-            0x2D => self.registers.l = self.dcr(self.registers.l),          // DCR L
-            0x3D => self.registers.a = self.dcr(self.registers.a),          // DCR A
+            0x05 => self.reg.b = self.dcr(self.reg.b),          // DCR B
+            0x0D => self.reg.c = self.dcr(self.reg.c),          // DCR C
+            0x15 => self.reg.d = self.dcr(self.reg.d),          // DCR D
+            0x1D => self.reg.e = self.dcr(self.reg.e),          // DCR E
+            0x25 => self.reg.h = self.dcr(self.reg.h),          // DCR H
+            0x2D => self.reg.l = self.dcr(self.reg.l),          // DCR L
+            0x3D => self.reg.a = self.dcr(self.reg.a),          // DCR A
             0x35 => {                                                       // DCR (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let r = self.dcr(self.bus.read_byte(addr));
                 self.bus.write_byte(addr, r);
             },
 
             // CMA Complement Accumulator
-            0x2F => self.registers.a = !self.registers.a,                   // CMA
+            0x2F => self.reg.a = !self.reg.a,                   // CMA
 
             // Decimal adjust accumulator
             0x27 => self.daa(),
@@ -452,253 +452,253 @@ impl CPU {
 
             // MOV Data transfer instructions
             0x40 => {},                                                     // MOV B,B
-            0x41 => self.registers.b = self.registers.c,                    // MOV B,C
-            0x42 => self.registers.b = self.registers.d,                    // MOV B,D
-            0x43 => self.registers.b = self.registers.e,                    // MOV B,E
-            0x44 => self.registers.b = self.registers.h,                    // MOV B,H
-            0x45 => self.registers.b = self.registers.l,                    // MOV B,L
+            0x41 => self.reg.b = self.reg.c,                    // MOV B,C
+            0x42 => self.reg.b = self.reg.d,                    // MOV B,D
+            0x43 => self.reg.b = self.reg.e,                    // MOV B,E
+            0x44 => self.reg.b = self.reg.h,                    // MOV B,H
+            0x45 => self.reg.b = self.reg.l,                    // MOV B,L
             0x46 => {                                                       // MOV B,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.b = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.b = self.bus.read_byte(addr)
             },
-            0x47 => self.registers.b = self.registers.a,                    // MOV B,A
+            0x47 => self.reg.b = self.reg.a,                    // MOV B,A
 
-            0x48 => self.registers.c = self.registers.b,                    // MOV C,B                                                     // MOV B,B
+            0x48 => self.reg.c = self.reg.b,                    // MOV C,B                                                     // MOV B,B
             0x49 => {},                                                     // MOV C,C
-            0x4A => self.registers.c = self.registers.d,                    // MOV C,D
-            0x4B => self.registers.c = self.registers.e,                    // MOV C,E
-            0x4C => self.registers.c = self.registers.h,                    // MOV C,H
-            0x4D => self.registers.c = self.registers.l,                    // MOV C,L
+            0x4A => self.reg.c = self.reg.d,                    // MOV C,D
+            0x4B => self.reg.c = self.reg.e,                    // MOV C,E
+            0x4C => self.reg.c = self.reg.h,                    // MOV C,H
+            0x4D => self.reg.c = self.reg.l,                    // MOV C,L
             0x4E => {                                                       // MOV C,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.c = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.c = self.bus.read_byte(addr)
             },
-            0x4F => self.registers.c = self.registers.a,                    // MOV C,A
+            0x4F => self.reg.c = self.reg.a,                    // MOV C,A
 
-            0x50 => self.registers.d = self.registers.b,                    // MOV D,B                                                     // MOV B,B
-            0x51 => self.registers.d = self.registers.c,                    // MOV D,C
+            0x50 => self.reg.d = self.reg.b,                    // MOV D,B                                                     // MOV B,B
+            0x51 => self.reg.d = self.reg.c,                    // MOV D,C
             0x52 => {},                                                     // MOV D,D
-            0x53 => self.registers.d = self.registers.e,                    // MOV D,E
-            0x54 => self.registers.d = self.registers.h,                    // MOV D,H
-            0x55 => self.registers.d = self.registers.l,                    // MOV D,L
+            0x53 => self.reg.d = self.reg.e,                    // MOV D,E
+            0x54 => self.reg.d = self.reg.h,                    // MOV D,H
+            0x55 => self.reg.d = self.reg.l,                    // MOV D,L
             0x56 => {                                                       // MOV D,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.d = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.d = self.bus.read_byte(addr)
             },
-            0x57 => self.registers.d = self.registers.a,                    // MOV D,A
+            0x57 => self.reg.d = self.reg.a,                    // MOV D,A
 
-            0x58 => self.registers.e = self.registers.b,                    // MOV E,B                                                     // MOV B,B
-            0x59 => self.registers.e = self.registers.c,                    // MOV E,C
-            0x5A => self.registers.e = self.registers.d,                    // MOV E,D
+            0x58 => self.reg.e = self.reg.b,                    // MOV E,B                                                     // MOV B,B
+            0x59 => self.reg.e = self.reg.c,                    // MOV E,C
+            0x5A => self.reg.e = self.reg.d,                    // MOV E,D
             0x5B => {},                                                     // MOV E,E
-            0x5C => self.registers.e = self.registers.h,                    // MOV E,H
-            0x5D => self.registers.e = self.registers.l,                    // MOV E,L
+            0x5C => self.reg.e = self.reg.h,                    // MOV E,H
+            0x5D => self.reg.e = self.reg.l,                    // MOV E,L
             0x5E => {                                                       // MOV E,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.e = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.e = self.bus.read_byte(addr)
             },
-            0x5F => self.registers.e = self.registers.a,                    // MOV E,A
+            0x5F => self.reg.e = self.reg.a,                    // MOV E,A
 
-            0x60 => self.registers.h = self.registers.b,                    // MOV H,B                                                     // MOV B,B
-            0x61 => self.registers.h = self.registers.c,                    // MOV H,C
-            0x62 => self.registers.h = self.registers.d,                    // MOV H,D
-            0x63 => self.registers.h = self.registers.e,                    // MOV H,E
+            0x60 => self.reg.h = self.reg.b,                    // MOV H,B                                                     // MOV B,B
+            0x61 => self.reg.h = self.reg.c,                    // MOV H,C
+            0x62 => self.reg.h = self.reg.d,                    // MOV H,D
+            0x63 => self.reg.h = self.reg.e,                    // MOV H,E
             0x64 => {},                                                     // MOV H,H
-            0x65 => self.registers.h = self.registers.l,                    // MOV H,L
+            0x65 => self.reg.h = self.reg.l,                    // MOV H,L
             0x66 => {                                                       // MOV H,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.h = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.h = self.bus.read_byte(addr)
             },
-            0x67 => self.registers.h = self.registers.a,                    // MOV H,A
+            0x67 => self.reg.h = self.reg.a,                    // MOV H,A
 
-            0x68 => self.registers.l = self.registers.b,                    // MOV L,B                                                     // MOV B,B
-            0x69 => self.registers.l = self.registers.c,                    // MOV L,C
-            0x6A => self.registers.l = self.registers.d,                    // MOV L,D
-            0x6B => self.registers.l = self.registers.e,                    // MOV L,E
-            0x6C => self.registers.l = self.registers.h,                    // MOV L,H
+            0x68 => self.reg.l = self.reg.b,                    // MOV L,B                                                     // MOV B,B
+            0x69 => self.reg.l = self.reg.c,                    // MOV L,C
+            0x6A => self.reg.l = self.reg.d,                    // MOV L,D
+            0x6B => self.reg.l = self.reg.e,                    // MOV L,E
+            0x6C => self.reg.l = self.reg.h,                    // MOV L,H
             0x6D => {},                                                     // MOV L,L
             0x6E => {                                                       // MOV L,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.l = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.l = self.bus.read_byte(addr)
             },
-            0x6F => self.registers.l = self.registers.a,                    // MOV L,A
+            0x6F => self.reg.l = self.reg.a,                    // MOV L,A
 
             0x70 => {                                                       // MOV (HL), B
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.b)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.b)
             },
             0x71 => {                                                       // MOV (HL), C
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.c)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.c)
             },
             0x72 => {                                                       // MOV (HL), D
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.d)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.d)
             },
             0x73 => {                                                       // MOV (HL), E
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.e)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.e)
             },
             0x74 => {                                                       // MOV (HL), H
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.h)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.h)
             },
             0x75 => {                                                       // MOV (HL), L
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.l)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.l)
             },
 
             0x76 => self.halt = true,                                       // HLT
 
             0x77 => {                                                       // MOV (HL), A
-                let addr = self.registers.get_hl();
-                self.bus.write_byte(addr, self.registers.a)
+                let addr = self.reg.get_hl();
+                self.bus.write_byte(addr, self.reg.a)
             },
 
-            0x78 => self.registers.a = self.registers.b,                    // MOV A,B                                                     // MOV B,B
-            0x79 => self.registers.a = self.registers.c,                    // MOV A,C
-            0x7A => self.registers.a = self.registers.d,                    // MOV A,D
-            0x7B => self.registers.a = self.registers.e,                    // MOV A,E
-            0x7C => self.registers.a = self.registers.h,                    // MOV A,H
-            0x7D => self.registers.a = self.registers.l,                    // MOV A,L
+            0x78 => self.reg.a = self.reg.b,                    // MOV A,B                                                     // MOV B,B
+            0x79 => self.reg.a = self.reg.c,                    // MOV A,C
+            0x7A => self.reg.a = self.reg.d,                    // MOV A,D
+            0x7B => self.reg.a = self.reg.e,                    // MOV A,E
+            0x7C => self.reg.a = self.reg.h,                    // MOV A,H
+            0x7D => self.reg.a = self.reg.l,                    // MOV A,L
             0x7E => {                                                       // MOV A,(HL)
-                let addr = self.registers.get_hl();
-                self.registers.a = self.bus.read_byte(addr)
+                let addr = self.reg.get_hl();
+                self.reg.a = self.bus.read_byte(addr)
             },
             0x7F => {},                                                     // MOV A,A
 
             // STAX Store accumulator
             0x02 => {                                                       // STAX B
-                let addr = self.registers.get_bc();
-                self.bus.write_byte(addr, self.registers.a)
+                let addr = self.reg.get_bc();
+                self.bus.write_byte(addr, self.reg.a)
             }
             0x12 => {                                                       // STAX D
-                let addr = self.registers.get_de();
-                self.bus.write_byte(addr, self.registers.a)
+                let addr = self.reg.get_de();
+                self.bus.write_byte(addr, self.reg.a)
             },
 
             // LDAX Load accumulator
             0x0A => {                                                       // LDAX B
-                let addr = self.registers.get_bc();
-                self.registers.a = self.bus.read_byte(addr)
+                let addr = self.reg.get_bc();
+                self.reg.a = self.bus.read_byte(addr)
             },
             0x1A => {                                                       // LDAX D
-                let addr = self.registers.get_de();
-                self.registers.a = self.bus.read_byte(addr)
+                let addr = self.reg.get_de();
+                self.reg.a = self.bus.read_byte(addr)
             },
 
             /* Register or Memory to Accumulator instructions*/
             // ADD register or memory to accumulator
-            0x80 => self.add(self.registers.b),                             // ADD B
-            0x81 => self.add(self.registers.c),                             // ADD C
-            0x82 => self.add(self.registers.d),                             // ADD D
-            0x83 => self.add(self.registers.e),                             // ADD E
-            0x84 => self.add(self.registers.h),                             // ADD H
-            0x85 => self.add(self.registers.l),                             // ADD L
+            0x80 => self.add(self.reg.b),                             // ADD B
+            0x81 => self.add(self.reg.c),                             // ADD C
+            0x82 => self.add(self.reg.d),                             // ADD D
+            0x83 => self.add(self.reg.e),                             // ADD E
+            0x84 => self.add(self.reg.h),                             // ADD H
+            0x85 => self.add(self.reg.l),                             // ADD L
             0x86 => {                                                       // ADD (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.add(n)
             },
-            0x87 => self.add(self.registers.a),                             // ADD A
+            0x87 => self.add(self.reg.a),                             // ADD A
 
             // ADC Add register or memory to accumulator with carry
-            0x88 => self.adc(self.registers.b),                             // ADC B
-            0x89 => self.adc(self.registers.c),                             // ADC C
-            0x8A => self.adc(self.registers.d),                             // ADC D
-            0x8B => self.adc(self.registers.e),                             // ADC E
-            0x8C => self.adc(self.registers.h),                             // ADC H
-            0x8D => self.adc(self.registers.l),                             // ADC L
+            0x88 => self.adc(self.reg.b),                             // ADC B
+            0x89 => self.adc(self.reg.c),                             // ADC C
+            0x8A => self.adc(self.reg.d),                             // ADC D
+            0x8B => self.adc(self.reg.e),                             // ADC E
+            0x8C => self.adc(self.reg.h),                             // ADC H
+            0x8D => self.adc(self.reg.l),                             // ADC L
             0x8E => {                                                       // ADC (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.adc(n)
             },
-            0x8F => self.adc(self.registers.a),                             // ADC A
+            0x8F => self.adc(self.reg.a),                             // ADC A
 
             // SUB Substract register or memory to accumulator
-            0x90 => self.sub(self.registers.b),                             // SUB B
-            0x91 => self.sub(self.registers.c),                             // SUB C
-            0x92 => self.sub(self.registers.d),                             // SUB D
-            0x93 => self.sub(self.registers.e),                             // SUB E
-            0x94 => self.sub(self.registers.h),                             // SUB H
-            0x95 => self.sub(self.registers.l),                             // SUB L
+            0x90 => self.sub(self.reg.b),                             // SUB B
+            0x91 => self.sub(self.reg.c),                             // SUB C
+            0x92 => self.sub(self.reg.d),                             // SUB D
+            0x93 => self.sub(self.reg.e),                             // SUB E
+            0x94 => self.sub(self.reg.h),                             // SUB H
+            0x95 => self.sub(self.reg.l),                             // SUB L
             0x96 => {                                                       // SUB (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.sub(n)
             },
-            0x97 => self.sub(self.registers.a),                             // SUB A
+            0x97 => self.sub(self.reg.a),                             // SUB A
 
             // SBB Substract register or memory to accumulator with borrow
-            0x98 => self.sbb(self.registers.b),                             // SBB B
-            0x99 => self.sbb(self.registers.c),                             // SBB C
-            0x9A => self.sbb(self.registers.d),                             // SBB D
-            0x9B => self.sbb(self.registers.e),                             // SBB E
-            0x9C => self.sbb(self.registers.h),                             // SBB H
-            0x9D => self.sbb(self.registers.l),                             // SBB L
+            0x98 => self.sbb(self.reg.b),                             // SBB B
+            0x99 => self.sbb(self.reg.c),                             // SBB C
+            0x9A => self.sbb(self.reg.d),                             // SBB D
+            0x9B => self.sbb(self.reg.e),                             // SBB E
+            0x9C => self.sbb(self.reg.h),                             // SBB H
+            0x9D => self.sbb(self.reg.l),                             // SBB L
             0x9E => {                                                       // SBB (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.sbb(n)
             },
-            0x9F => self.sbb(self.registers.a),                             // SBB A
+            0x9F => self.sbb(self.reg.a),                             // SBB A
 
             // ANA Logical AND register or memory with accumulator
-            0xA0 => self.ana(self.registers.b),                             // ANA B
-            0xA1 => self.ana(self.registers.c),                             // ANA C
-            0xA2 => self.ana(self.registers.d),                             // ANA D
-            0xA3 => self.ana(self.registers.e),                             // ANA E
-            0xA4 => self.ana(self.registers.h),                             // ANA H
-            0xA5 => self.ana(self.registers.l),                             // ANA L
+            0xA0 => self.ana(self.reg.b),                             // ANA B
+            0xA1 => self.ana(self.reg.c),                             // ANA C
+            0xA2 => self.ana(self.reg.d),                             // ANA D
+            0xA3 => self.ana(self.reg.e),                             // ANA E
+            0xA4 => self.ana(self.reg.h),                             // ANA H
+            0xA5 => self.ana(self.reg.l),                             // ANA L
             0xA6 => {                                                       // ANA (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.ana(n)
             },
-            0xA7 => self.ana(self.registers.a),                             // ANA A
+            0xA7 => self.ana(self.reg.a),                             // ANA A
 
             // XRA Logical Exclusive-OR register or memory with accumulator
-            0xA8 => self.xra(self.registers.b),                             // XRA B
-            0xA9 => self.xra(self.registers.c),                             // XRA C
-            0xAA => self.xra(self.registers.d),                             // XRA D
-            0xAB => self.xra(self.registers.e),                             // XRA E
-            0xAC => self.xra(self.registers.h),                             // XRA H
-            0xAD => self.xra(self.registers.l),                             // XRA L
+            0xA8 => self.xra(self.reg.b),                             // XRA B
+            0xA9 => self.xra(self.reg.c),                             // XRA C
+            0xAA => self.xra(self.reg.d),                             // XRA D
+            0xAB => self.xra(self.reg.e),                             // XRA E
+            0xAC => self.xra(self.reg.h),                             // XRA H
+            0xAD => self.xra(self.reg.l),                             // XRA L
             0xAE => {                                                       // XNA (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.xra(n)
             },
-            0xAF => self.xra(self.registers.a),                             // XRA A
+            0xAF => self.xra(self.reg.a),                             // XRA A
 
             // ORA Logical OR register or memory with accumulator
-            0xB0 => self.ora(self.registers.b),                             // ORA B
-            0xB1 => self.ora(self.registers.c),                             // ORA C
-            0xB2 => self.ora(self.registers.d),                             // ORA D
-            0xB3 => self.ora(self.registers.e),                             // ORA E
-            0xB4 => self.ora(self.registers.h),                             // ORA H
-            0xB5 => self.ora(self.registers.l),                             // ORA L
+            0xB0 => self.ora(self.reg.b),                             // ORA B
+            0xB1 => self.ora(self.reg.c),                             // ORA C
+            0xB2 => self.ora(self.reg.d),                             // ORA D
+            0xB3 => self.ora(self.reg.e),                             // ORA E
+            0xB4 => self.ora(self.reg.h),                             // ORA H
+            0xB5 => self.ora(self.reg.l),                             // ORA L
             0xB6 => {                                                       // ORA (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.ora(n)
             },
-            0xB7 => self.ora(self.registers.a),                             // ORA A
+            0xB7 => self.ora(self.reg.a),                             // ORA A
 
             // CMP Compare register or memory with accumulator
-            0xB8 => self.cmp(self.registers.b),                             // CMP B
-            0xB9 => self.cmp(self.registers.c),                             // CMP C
-            0xBA => self.cmp(self.registers.d),                             // CMP D
-            0xBB => self.cmp(self.registers.e),                             // CMP E
-            0xBC => self.cmp(self.registers.h),                             // CMP H
-            0xBD => self.cmp(self.registers.l),                             // CMP L
+            0xB8 => self.cmp(self.reg.b),                             // CMP B
+            0xB9 => self.cmp(self.reg.c),                             // CMP C
+            0xBA => self.cmp(self.reg.d),                             // CMP D
+            0xBB => self.cmp(self.reg.e),                             // CMP E
+            0xBC => self.cmp(self.reg.h),                             // CMP H
+            0xBD => self.cmp(self.reg.l),                             // CMP L
             0xBE => {                                                       // CMP (HL)
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 let n = self.bus.read_byte(addr);
                 self.cmp(n)
             },
-            0xBF => self.cmp(self.registers.a),                             // CMP A
+            0xBF => self.cmp(self.reg.a),                             // CMP A
 
             /* Rotate accumulator instructions */
             0x07 => self.rlc(),                                             // RLC
@@ -710,40 +710,40 @@ impl CPU {
             // PUSH data onto stack
             0xC5 => {                                                       // PUSH B
                 self.sp = self.sp.wrapping_sub(2);
-                self.bus.write_word(self.sp, self.registers.get_bc());
+                self.bus.write_word(self.sp, self.reg.get_bc());
             },
             0xD5 => {                                                       // PUSH D
                 self.sp = self.sp.wrapping_sub(2);
-                self.bus.write_word(self.sp, self.registers.get_de());
+                self.bus.write_word(self.sp, self.reg.get_de());
             },
             0xE5 => {                                                       // PUSH H
                 self.sp = self.sp.wrapping_sub(2);
-                self.bus.write_word(self.sp, self.registers.get_hl());
+                self.bus.write_word(self.sp, self.reg.get_hl());
             },
             0xF5 => {                                                       // PUSH PSW
                 self.sp = self.sp.wrapping_sub(2);
                 self.bus.write_byte(self.sp, self.flags.as_byte());
-                self.bus.write_byte(self.sp + 1, self.registers.a);
+                self.bus.write_byte(self.sp + 1, self.reg.a);
             },
 
             // POP data off stack
             0xC1 => {                                                       // POP B
-                self.registers.set_bc(self.bus.read_word(self.sp));
+                self.reg.set_bc(self.bus.read_word(self.sp));
                 self.sp = self.sp.wrapping_add(2);
             },
 
             0xD1 => {                                                       // POP D
-                self.registers.set_de(self.bus.read_word(self.sp));
+                self.reg.set_de(self.bus.read_word(self.sp));
                 self.sp = self.sp.wrapping_add(2);
             },
 
             0xE1 => {                                                       // POP H
-                self.registers.set_hl(self.bus.read_word(self.sp));
+                self.reg.set_hl(self.bus.read_word(self.sp));
                 self.sp = self.sp.wrapping_add(2);
             },
 
             0xF1 => {                                                       // POP PSW
-                self.registers.a = self.bus.read_byte((self.sp)+1);
+                self.reg.a = self.bus.read_byte((self.sp)+1);
                 let bflags = self.bus.read_byte(self.sp);
                 self.flags.from_byte(bflags);
                 self.sp = self.sp.wrapping_add(2);
@@ -751,15 +751,15 @@ impl CPU {
 
             // DAD Double add
             0x09 => {                                                       // DAD B
-                let reg = self.registers.get_bc();
+                let reg = self.reg.get_bc();
                 self.dad(reg);
             },
             0x19 => {                                                       // DAD D
-                let reg = self.registers.get_de();
+                let reg = self.reg.get_de();
                 self.dad(reg);
             },
             0x29 => {                                                       // DAD H
-                let reg = self.registers.get_hl();
+                let reg = self.reg.get_hl();
                 self.dad(reg);
             },
             0x39 => {                                                       // DAD SP
@@ -769,68 +769,68 @@ impl CPU {
 
             // INX Increment register pair
             0x03 => {                                                       // INX B
-                let mut b = self.registers.get_bc();
+                let mut b = self.reg.get_bc();
                 b = b.wrapping_add(1);
-                self.registers.set_bc(b);
+                self.reg.set_bc(b);
             },
 
             0x13 => {                                                       // INX D
-                let mut d = self.registers.get_de();
+                let mut d = self.reg.get_de();
                 d = d.wrapping_add(1);
-                self.registers.set_de(d);
+                self.reg.set_de(d);
             },
 
             0x23 => {                                                       // INX H
-                let mut h = self.registers.get_hl();
+                let mut h = self.reg.get_hl();
                 h = h.wrapping_add(1);
-                self.registers.set_hl(h);
+                self.reg.set_hl(h);
             }
 
             0x33 => self.sp = self.sp.wrapping_add(1),                      // INX SP             
 
             // DCX Decrement register pair
             0x0B => {                                                       // DCX B
-                let mut b = self.registers.get_bc();
+                let mut b = self.reg.get_bc();
                 b = b.wrapping_sub(1);
-                self.registers.set_bc(b);
+                self.reg.set_bc(b);
             },
 
             0x1B => {                                                       // DCX D
-                let mut d = self.registers.get_de();
+                let mut d = self.reg.get_de();
                 d = d.wrapping_sub(1);
-                self.registers.set_de(d);
+                self.reg.set_de(d);
             },
 
             0x2B => {                                                       // DCX H
-                let mut h = self.registers.get_hl();
+                let mut h = self.reg.get_hl();
                 h = h.wrapping_sub(1);
-                self.registers.set_hl(h);
+                self.reg.set_hl(h);
             }
 
             0x3B => self.sp = self.sp.wrapping_sub(1),                      // DCX SP
 
-            // XCHG Exchange registers
+            // XCHG Exchange reg
             0xEB => self.xchg(),
 
             // XTHL Exchange stack
             0xE3 => self.xthl(),
 
             // SPHL Load SP from H and L
-            0xF9 => self.sp = self.registers.get_hl(),
+            0xF9 => self.sp = self.reg.get_hl(),
 
             /* Immediate instructions */
             // LXI Move immediate data
             0x01 => {                                                       // LXI B
                 let d16 = self.bus.read_word(self.pc + 1); 
-                self.registers.set_bc(d16);
+                self.reg.set_bc(d16);
             },
             0x11 => {                                                       // LXI D
                 let d16 = self.bus.read_word(self.pc + 1); 
-                self.registers.set_de(d16);
+                self.reg.set_de(d16);
             },
             0x21 => {                                                       // LXI H
                 let d16 = self.bus.read_word(self.pc + 1); 
-                self.registers.set_hl(d16);
+                self.reg.set_hl(d16);
             },
             0x31 => {                                                       // LXI SP
                 let d16 = self.bus.read_word(self.pc + 1); 
@@ -839,36 +839,36 @@ impl CPU {
             // MVI Move immediate data
             0x06 => {                                                       // MVI B,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.b = d8;
+                self.reg.b = d8;
             },
             0x0E => {                                                       // MVI C,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.c = d8;
+                self.reg.c = d8;
             },
             0x16 => {                                                       // MVI D,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.d = d8;
+                self.reg.d = d8;
             },
             0x1E => {                                                       // MVI E,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.e = d8;
+                self.reg.e = d8;
             },
             0x26 => {                                                       // MVI H,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.h = d8;
+                self.reg.h = d8;
             },
             0x2E => {                                                       // MVI L,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.l = d8;
+                self.reg.l = d8;
             },
             0x36 => {                                                       // MVI (HL),d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                let addr = self.registers.get_hl();
+                let addr = self.reg.get_hl();
                 self.bus.write_byte(addr, d8);
             },
             0x3E => {                                                       // MVI A,d8
                 let d8 = self.bus.read_byte(self.pc + 1);
-                self.registers.a = d8;
+                self.reg.a = d8;
             },
 
             // ADI add immediate to accumulator
@@ -923,18 +923,18 @@ impl CPU {
             // STA Store accumulator direct
             0x32 => {                                                       // STA
                 let addr = self.bus.read_word(self.pc + 1);
-                self.bus.write_byte(addr, self.registers.a);
+                self.bus.write_byte(addr, self.reg.a);
             },
 
             // LDA Store accumulator direct
             0x3A => {                                                       // LDA
                 let addr = self.bus.read_word(self.pc + 1);
-                self.registers.a = self.bus.read_byte(addr);
+                self.reg.a = self.bus.read_byte(addr);
             },
 
             // SHLD Store H and L direct
             0x22 => {                                                       // SHLD
-                let d = self.registers.get_hl();
+                let d = self.reg.get_hl();
                 let addr = self.bus.read_word(self.pc + 1);
                 self.bus.write_word(addr, d);
             },
@@ -943,12 +943,12 @@ impl CPU {
             0x2A => {                                                       // LHLD
                 let addr = self.bus.read_word(self.pc + 1);
                 let d = self.bus.read_word(addr);
-                self.registers.set_hl(d);
+                self.reg.set_hl(d);
             },
 
             /* JUMP instructions */
             // Load program counter
-            0xE9 => { self.pc = self.registers.get_hl(); },                 // PCHL
+            0xE9 => { self.pc = self.reg.get_hl(); },                 // PCHL
             // JMP Jump
             0xC3 => {                                                       // JMP
                 let addr = self.bus.read_word(self.pc + 1);
@@ -1182,7 +1182,7 @@ impl CPU {
         if self.debug.switch
         { self.debug.string = match opcode {
             0xC7 | 0xCF | 0xD7 | 0xDF | 0xE7 | 0xEF | 0xF7 | 0xFF =>  String::from("RST"),
-            _ => format!("{}\nPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}\nB : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}\n", self.dasm(pc), pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32, self.registers.b, self.registers.c, self.registers.d, self.registers.e, self.registers.h, self.registers.l, self.registers.a, self.bus.read_word(self.sp)),
+            _ => format!("{}\nPC : {:#06x}\tSP : {:#06x}\tS : {}\tZ : {}\tA : {}\tP : {}\tC : {}\nB : {:#04x}\tC : {:#04x}\tD : {:#04x}\tE : {:#04x}\tH : {:#04x}\tL : {:#04x}\tA : {:#04x}\t(SP) : {:#06x}\n", self.dasm(pc), pc, self.sp, self.flags.s as i32, self.flags.z as i32, self.flags.a as i32, self.flags.p as i32, self.flags.c as i32, self.reg.b, self.reg.c, self.reg.d, self.reg.e, self.reg.h, self.reg.l, self.reg.a, self.bus.read_word(self.sp)),
             }
         }
 

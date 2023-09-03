@@ -37,8 +37,8 @@ fn load_execute() -> Result<(), Box<dyn Error>> {
 }
 
 fn bdos_call(c: &CPU) {
-    if c.registers.c == 0x09 {
-        let mut a = c.registers.get_de();
+    if c.reg.c == 0x09 {
+        let mut a = c.reg.get_de();
         loop {
             let c = c.bus.read_byte(a);
             if c as char == '$' {
@@ -49,7 +49,7 @@ fn bdos_call(c: &CPU) {
             print!("{}", c as char);
         }
     }
-    if c.registers.c == 0x02 {
-        print!("{}", c.registers.e as char);
+    if c.reg.c == 0x02 {
+        print!("{}", c.reg.e as char);
     }
 }
