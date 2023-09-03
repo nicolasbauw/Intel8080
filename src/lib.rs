@@ -362,28 +362,20 @@ impl CPU {
         self.slice_max_cycles = cycles as u32;
     }
 
-    /// Fetches and executes one instruction from (pc), limiting speed to 2,1 Mhz by default. Returns the number of consumed clock cycles.
-    pub fn execute_slice(&mut self) -> u32 {
+    /// Fetches and executes one instruction from (pc). Returns the sleep time when slice_max_cycles is reached.
+    pub fn execute_timed(&mut self) -> Option<u32> {
+        let mut sleep_time: Option<u32> = None;
         if self.slice_current_cycles > self.slice_max_cycles {
             self.slice_current_cycles = 0;
             // d = time taken to execute the slice_max_cycles
             if let Ok(d) = self.slice_start_time.elapsed() {
-                let sleep_time = self.slice_duration.saturating_sub(d.as_millis() as u32);
-                /*println!("Execution time : {:?}", d);
-                println!("Sleep time : {:?}", sleep_time);*/
-
-                #[cfg(windows)]
-                spin_sleep::sleep(Duration::from_millis(u64::from(sleep_time)));
-
-                #[cfg(not(windows))]
-                std::thread::sleep(Duration::from_millis(u64::from(sleep_time)));
-
+                sleep_time = Some(self.slice_duration.saturating_sub(d.as_millis() as u32));
                 self.slice_start_time = SystemTime::now();
             }
         }
         let cycles = self.execute();
         self.slice_current_cycles += cycles;
-        cycles
+        sleep_time
     }
 
     /// Fetches and executes one instruction from (pc). Returns the number of consumed clock cycles. No execution speed limit.
