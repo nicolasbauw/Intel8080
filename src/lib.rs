@@ -47,7 +47,7 @@ mod dasm;
 use crate::register::Registers;
 use crate::memory::AddressBus;
 use crate::flags::Flags;
-use std::{time::Duration, time::SystemTime};
+use std::time::SystemTime;
 
 const CYCLES: [u8; 256] = [
     4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 5, 7, 4,
